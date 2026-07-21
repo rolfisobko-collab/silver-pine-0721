@@ -156,7 +156,7 @@ export function CheckoutView() {
                   key={`${item.product.id}-${item.color}`}
                   className="flex items-center gap-3"
                 >
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white/5">
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-secondary">
                     <Image
                       src={item.product.image || '/placeholder.svg'}
                       alt={item.product.name}
@@ -181,7 +181,7 @@ export function CheckoutView() {
               ))}
             </ul>
 
-            <dl className="mt-5 space-y-2.5 border-t border-white/10 pt-4 text-sm">
+            <dl className="mt-5 space-y-2.5 border-t border-border pt-4 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Subtotal</dt>
                 <dd>{formatPrice(subtotal)}</dd>
@@ -194,7 +194,7 @@ export function CheckoutView() {
                 <dt className="text-muted-foreground">Impuestos</dt>
                 <dd>{formatPrice(tax)}</dd>
               </div>
-              <div className="flex justify-between border-t border-white/10 pt-2.5 text-base font-semibold">
+              <div className="flex justify-between border-t border-border pt-2.5 text-base font-semibold">
                 <dt>Total</dt>
                 <dd>{formatPrice(total)}</dd>
               </div>

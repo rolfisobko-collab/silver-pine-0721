@@ -3,11 +3,14 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useReducer,
   type ReactNode,
 } from 'react'
 import type { Product } from '@/lib/products'
+
+const CART_KEY = 'lumen_cart'
 
 export type CartItem = {
   product: Product
@@ -84,8 +87,26 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
+function init(): CartState {
+  if (typeof window === 'undefined') return { items: [] }
+  try {
+    const raw = window.localStorage.getItem(CART_KEY)
+    return raw ? (JSON.parse(raw) as CartState) : { items: [] }
+  } catch {
+    return { items: [] }
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] })
+  const [state, dispatch] = useReducer(cartReducer, { items: [] }, init)
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(CART_KEY, JSON.stringify(state))
+    } catch {
+      // ignore write errors
+    }
+  }, [state])
 
   const value = useMemo<CartContextValue>(() => {
     const count = state.items.reduce((acc, i) => acc + i.quantity, 0)

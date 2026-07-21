@@ -33,8 +33,8 @@ export function ProductDetail({ product }: { product: Product }) {
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Gallery */}
         <div className="glass glass-sheen relative overflow-hidden rounded-4xl p-8">
-          <div className="absolute left-5 top-5 rounded-full bg-black/30 px-3 py-1 text-xs font-medium backdrop-blur-md">
-            {product.category}
+          <div className="absolute left-5 top-5 rounded-full bg-foreground/70 px-3 py-1 text-xs font-medium text-background backdrop-blur-md">
+            {product.category} · {product.subcategory}
           </div>
           <div className="relative aspect-square">
             <Image
@@ -112,7 +112,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-secondary"
                 aria-label="Disminuir cantidad"
               >
                 <Minus className="h-4 w-4" />
@@ -121,7 +121,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={() => setQty((q) => q + 1)}
-                className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-secondary"
                 aria-label="Aumentar cantidad"
               >
                 <Plus className="h-4 w-4" />
