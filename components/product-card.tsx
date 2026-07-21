@@ -10,13 +10,13 @@ export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
 
   return (
-    <div className="glass glass-sheen group flex flex-col overflow-hidden rounded-3xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+    <div className="glass glass-sheen glass-hover glass-liquid group flex flex-col overflow-hidden rounded-3xl">
       <Link
         href={`/producto/${product.slug}`}
         className="relative block aspect-square overflow-hidden"
       >
-        <div className="absolute left-3 top-3 z-10 rounded-full bg-black/30 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur-md">
-          {product.category}
+        <div className="absolute left-3 top-3 z-10 rounded-full bg-foreground/70 px-2.5 py-1 text-xs font-medium text-background backdrop-blur-md">
+          {product.subcategory}
         </div>
         <Image
           src={product.image || '/placeholder.svg'}

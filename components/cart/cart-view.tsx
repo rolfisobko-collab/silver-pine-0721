@@ -52,7 +52,7 @@ export function CartView() {
             >
               <Link
                 href={`/producto/${item.product.slug}`}
-                className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-white/5"
+                className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-secondary"
               >
                 <Image
                   src={item.product.image || '/placeholder.svg'}
@@ -79,7 +79,7 @@ export function CartView() {
                   <button
                     type="button"
                     onClick={() => removeItem(item.product.id, item.color)}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-destructive"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-destructive"
                     aria-label={`Quitar ${item.product.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -97,7 +97,7 @@ export function CartView() {
                           item.quantity - 1,
                         )
                       }
-                      className="flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                      className="flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-secondary"
                       aria-label="Disminuir"
                     >
                       <Minus className="h-3.5 w-3.5" />
@@ -114,7 +114,7 @@ export function CartView() {
                           item.quantity + 1,
                         )
                       }
-                      className="flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                      className="flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-secondary"
                       aria-label="Aumentar"
                     >
                       <Plus className="h-3.5 w-3.5" />
@@ -146,7 +146,7 @@ export function CartView() {
                 <dt className="text-muted-foreground">Impuestos (10%)</dt>
                 <dd>{formatPrice(tax)}</dd>
               </div>
-              <div className="flex justify-between border-t border-white/10 pt-3 text-base font-semibold">
+              <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
                 <dt>Total</dt>
                 <dd>{formatPrice(total)}</dd>
               </div>

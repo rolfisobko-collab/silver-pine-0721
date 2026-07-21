@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Check, CreditCard, Lock } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
+import { useAuth } from '@/components/auth-context'
 import { formatPrice } from '@/lib/products'
 
 function Field({
@@ -27,7 +28,10 @@ function Field({
 
 export function CheckoutView() {
   const { items, subtotal, clear } = useCart()
+  const { user, createOrder } = useAuth()
   const [done, setDone] = useState(false)
+  const [address, setAddress] = useState('')
+  const [city, setCity] = useState('')
 
   const shipping = subtotal > 99 || subtotal === 0 ? 0 : 15
   const tax = Math.round(subtotal * 0.1)
@@ -35,6 +39,21 @@ export function CheckoutView() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (user) {
+      createOrder({
+        items: items.map((item) => ({
+          name: item.product.name,
+          slug: item.product.slug,
+          image: item.product.image,
+          color: item.color,
+          quantity: item.quantity,
+          price: item.product.price,
+        })),
+        total,
+        address,
+        city,
+      })
+    }
     setDone(true)
     clear()
   }
@@ -51,12 +70,22 @@ export function CheckoutView() {
             Gracias por tu compra. Te enviamos un correo con los detalles y el
             seguimiento de tu envío.
           </p>
-          <Link
-            href="/catalogo"
-            className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]"
-          >
-            Seguir comprando
-          </Link>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+            {user && (
+              <Link
+                href="/cuenta/pedidos"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]"
+              >
+                Seguir mi pedido
+              </Link>
+            )}
+            <Link
+              href="/catalogo"
+              className="glass glass-hover inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
+            >
+              Seguir comprando
+            </Link>
+          </div>
         </div>
       </div>
     )
@@ -118,9 +147,18 @@ export function CheckoutView() {
                   id="address"
                   placeholder="Av. Siempre Viva 742"
                   autoComplete="street-address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
-              <Field label="Ciudad" id="city" placeholder="Buenos Aires" autoComplete="address-level2" />
+              <Field
+                label="Ciudad"
+                id="city"
+                placeholder="Buenos Aires"
+                autoComplete="address-level2"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
               <Field label="Código postal" id="zip" placeholder="1000" autoComplete="postal-code" />
             </div>
           </fieldset>
@@ -156,7 +194,7 @@ export function CheckoutView() {
                   key={`${item.product.id}-${item.color}`}
                   className="flex items-center gap-3"
                 >
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white/5">
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-secondary">
                     <Image
                       src={item.product.image || '/placeholder.svg'}
                       alt={item.product.name}
@@ -181,7 +219,7 @@ export function CheckoutView() {
               ))}
             </ul>
 
-            <dl className="mt-5 space-y-2.5 border-t border-white/10 pt-4 text-sm">
+            <dl className="mt-5 space-y-2.5 border-t border-border pt-4 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Subtotal</dt>
                 <dd>{formatPrice(subtotal)}</dd>
@@ -194,7 +232,7 @@ export function CheckoutView() {
                 <dt className="text-muted-foreground">Impuestos</dt>
                 <dd>{formatPrice(tax)}</dd>
               </div>
-              <div className="flex justify-between border-t border-white/10 pt-2.5 text-base font-semibold">
+              <div className="flex justify-between border-t border-border pt-2.5 text-base font-semibold">
                 <dt>Total</dt>
                 <dd>{formatPrice(total)}</dd>
               </div>

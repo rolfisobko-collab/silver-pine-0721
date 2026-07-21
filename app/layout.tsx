@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/components/cart-context'
+import { AuthProvider } from '@/components/auth-context'
+import { AiAssistant } from '@/components/ai/ai-assistant'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
@@ -35,8 +37,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'dark',
-  themeColor: '#0a0d12',
+  colorScheme: 'light',
+  themeColor: '#faf9f7',
 }
 
 export default function RootLayout({
@@ -50,7 +52,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} bg-background`}
     >
       <body className="font-sans antialiased">
-        <CartProvider>{children}</CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+            <AiAssistant />
+          </CartProvider>
+        </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

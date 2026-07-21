@@ -1,9 +1,15 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
-import { categories, products, type Category } from '@/lib/products'
+import {
+  categories,
+  getSubcategories,
+  products,
+  type Category,
+} from '@/lib/products'
 import { cn } from '@/lib/utils'
 
 type SortKey = 'destacado' | 'precio-asc' | 'precio-desc' | 'rating'
@@ -15,23 +21,46 @@ const sortOptions: { key: SortKey; label: string }[] = [
   { key: 'rating', label: 'Mejor valorados' },
 ]
 
-export function CatalogView({ initialCategory }: { initialCategory?: string }) {
+export function CatalogView({
+  initialCategory,
+  initialSubcategory,
+}: {
+  initialCategory?: string
+  initialSubcategory?: string
+}) {
+  const searchParams = useSearchParams()
+
   const [active, setActive] = useState<Category | 'Todos'>(
     (categories.includes(initialCategory as Category)
       ? (initialCategory as Category)
       : 'Todos') as Category | 'Todos',
   )
+  const [sub, setSub] = useState<string | null>(initialSubcategory ?? null)
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortKey>('destacado')
+
+  // Keep filters in sync with the URL (nav mega-menu links).
+  useEffect(() => {
+    const cat = searchParams.get('cat')
+    const s = searchParams.get('sub')
+    setActive(
+      categories.includes(cat as Category) ? (cat as Category) : 'Todos',
+    )
+    setSub(s)
+  }, [searchParams])
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
       const matchesCat = active === 'Todos' || p.category === active
+      const matchesSub = !sub || p.subcategory === sub
+      const q = query.trim().toLowerCase()
       const matchesQuery =
-        query.trim() === '' ||
-        p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.tagline.toLowerCase().includes(query.toLowerCase())
-      return matchesCat && matchesQuery
+        q === '' ||
+        p.name.toLowerCase().includes(q) ||
+        p.tagline.toLowerCase().includes(q) ||
+        p.subcategory.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q)
+      return matchesCat && matchesSub && matchesQuery
     })
 
     list = [...list].sort((a, b) => {
@@ -47,18 +76,21 @@ export function CatalogView({ initialCategory }: { initialCategory?: string }) {
       }
     })
     return list
-  }, [active, query, sort])
+  }, [active, sub, query, sort])
 
   const filters: (Category | 'Todos')[] = ['Todos', ...categories]
+  const subFilters = active !== 'Todos' ? getSubcategories(active) : []
 
   return (
     <div className="mx-auto max-w-6xl px-4">
       <div className="mb-8">
         <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-          Catálogo
+          {active === 'Todos' ? 'Catálogo' : active}
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Explorá toda la colección Lumen.
+          {sub
+            ? `${active} · ${sub}`
+            : 'Explorá toda la colección Lumen.'}
         </p>
       </div>
 
@@ -69,12 +101,15 @@ export function CatalogView({ initialCategory }: { initialCategory?: string }) {
             <button
               key={f}
               type="button"
-              onClick={() => setActive(f)}
+              onClick={() => {
+                setActive(f)
+                setSub(null)
+              }}
               className={cn(
                 'rounded-full px-4 py-2 text-sm font-medium transition-colors',
                 active === f
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground',
+                  : 'bg-secondary text-muted-foreground hover:text-foreground',
               )}
             >
               {f}
@@ -107,6 +142,39 @@ export function CatalogView({ initialCategory }: { initialCategory?: string }) {
           </select>
         </div>
       </div>
+
+      {/* Subcategory chips */}
+      {subFilters.length > 0 && (
+        <div className="mb-6 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setSub(null)}
+            className={cn(
+              'rounded-full px-3.5 py-1.5 text-sm transition-colors',
+              !sub
+                ? 'bg-foreground text-background'
+                : 'glass glass-hover text-muted-foreground hover:text-foreground',
+            )}
+          >
+            Todo {active}
+          </button>
+          {subFilters.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setSub(s)}
+              className={cn(
+                'rounded-full px-3.5 py-1.5 text-sm transition-colors',
+                sub === s
+                  ? 'bg-foreground text-background'
+                  : 'glass glass-hover text-muted-foreground hover:text-foreground',
+              )}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
 
       <p className="mb-4 text-sm text-muted-foreground">
         {filtered.length} producto{filtered.length !== 1 && 's'}
