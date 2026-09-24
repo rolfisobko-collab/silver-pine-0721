@@ -125,7 +125,7 @@ export function SiteNav() {
               ariaLabel="Elegir categoria o subcategoria"
               className="w-44"
               iconClassName="text-foreground/80"
-              buttonClassName="nav-pill h-10 rounded-full border-0 bg-transparent px-3 py-2 shadow-none backdrop-blur-none hover:translate-y-0 hover:border-0 hover:bg-white/28 hover:shadow-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+              buttonClassName="nav-pill h-10 rounded-full px-3 py-2 focus-visible:ring-2 focus-visible:ring-foreground/10"
               menuClassName="nav-category-menu w-[min(23rem,calc(100vw-2rem))]"
             />
           </div>
@@ -133,7 +133,7 @@ export function SiteNav() {
           <form
             onSubmit={submitSearch}
             className={cn(
-              'hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-full border border-white/40 bg-white/34 px-4 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-xl lg:mx-5 lg:flex',
+                'nav-pill hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-full px-4 py-2 lg:mx-5 lg:flex',
               isCatalog && 'lg:hidden',
             )}
             role="search"
@@ -338,9 +338,10 @@ function NavLink({
   return (
     <Link
       href={href}
+      aria-current={active ? 'page' : undefined}
       className={cn(
-        'nav-pill flex items-center gap-2 rounded-full px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground',
-        active && 'bg-white/42 text-foreground',
+        'nav-pill flex h-10 items-center gap-2 rounded-full px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground',
+        active && 'text-foreground',
       )}
     >
       <Icon className="h-4 w-4 text-foreground/75" />
