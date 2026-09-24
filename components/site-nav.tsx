@@ -192,7 +192,7 @@ export function SiteNav() {
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </button>
                     {userOpen && (
-                      <div className="liquid-panel liquid-pop absolute right-0 top-full mt-2 w-52 rounded-2xl p-2">
+                      <div className="liquid-panel liquid-pop absolute right-0 top-full z-[220] mt-2 w-52 rounded-2xl p-2">
                         <MenuItem href="/cuenta" icon={User} label="Mi perfil" />
                         <MenuItem
                           href="/cuenta/pedidos"

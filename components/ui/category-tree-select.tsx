@@ -158,7 +158,12 @@ export function CategoryTreeSelect({
           )}
           style={menuStyle}
         >
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(239,35,60,0.13),transparent_38%),linear-gradient(180deg,rgba(255,255,255,0.58),rgba(255,255,255,0.2))]" />
+          <div
+            className={cn(
+              'pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(239,35,60,0.13),transparent_38%),linear-gradient(180deg,rgba(255,255,255,0.58),rgba(255,255,255,0.2))]',
+              tone === 'neutral' && 'bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.58),transparent_38%),radial-gradient(circle_at_88%_8%,rgba(180,196,220,0.16),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.50),rgba(255,255,255,0.14))]',
+            )}
+          />
           <div className="relative border-b border-white/70 p-1.5">
             <label className="relative block">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -211,7 +216,7 @@ export function CategoryTreeSelect({
                   className={cn(
                     'flex w-full items-center justify-between gap-2 rounded-2xl py-2.5 pr-3 text-left text-sm font-medium transition hover:bg-white/80',
                     selected ? 'bg-primary text-primary-foreground shadow-[0_10px_24px_rgba(239,35,60,0.22)]' : 'text-foreground',
-                    tone === 'neutral' && !selected && 'hover:bg-white/46',
+                    tone === 'neutral' && !selected && 'hover:translate-x-1 hover:border hover:border-white/58 hover:bg-white/70 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.88),0_12px_26px_-22px_rgba(20,24,36,0.45)]',
                     tone === 'neutral' && selected && 'border border-white/58 bg-white/52 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.85),inset_0_-1px_0_rgba(30,35,48,0.10),0_14px_28px_-22px_rgba(20,24,36,0.38)] backdrop-blur-xl',
                   )}
                   style={{ paddingLeft: 12 + row.depth * 22 }}
