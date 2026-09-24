@@ -3,101 +3,56 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Bot, Send, Sparkles, X } from 'lucide-react'
-import {
-  products,
-  categoryTree,
-  formatPrice,
-  type Product,
-} from '@/lib/products'
+import { usePathname } from 'next/navigation'
+import { Check, Plus, Send, X } from 'lucide-react'
+import { useCart } from '@/components/cart-context'
+import { Price } from '@/components/ui/price'
+import { type Product } from '@/lib/products'
 
 type Message = {
   role: 'user' | 'assistant'
   text: string
   results?: Product[]
+  streaming?: boolean
 }
 
 const SUGGESTIONS = [
-  'Busco auriculares con cancelación de ruido',
-  '¿Qué laptop me recomendás?',
-  'Algo para regalar menos de $100',
-  '¿Tenés fundas para el Lumen Phone?',
+  'Modulo iPhone 13',
+  'Bateria Samsung A12',
+  'Glass iPhone 12',
+  'Flex de carga Redmi',
 ]
 
-/**
- * Mock assistant: does simple local keyword matching over the catalog.
- * Swap `answer()` for a real API/LLM call later — the UI stays the same.
- */
-function answer(query: string): Message {
-  const q = query.toLowerCase().trim()
-
-  // price constraint e.g. "menos de 100"
-  const priceMatch = q.match(/(\d{2,4})/)
-  const maxPrice =
-    /menos|hasta|bajo|barat|econ/.test(q) && priceMatch
-      ? Number(priceMatch[1])
-      : null
-
-  const scored = products
-    .map((p) => {
-      let score = 0
-      const haystack = [
-        p.name,
-        p.tagline,
-        p.description,
-        p.category,
-        p.subcategory,
-        ...p.highlights,
-        ...p.colors,
-      ]
-        .join(' ')
-        .toLowerCase()
-      for (const word of q.split(/\s+/).filter((w) => w.length > 2)) {
-        if (haystack.includes(word)) score += 1
-      }
-      if (maxPrice && p.price <= maxPrice) score += 2
-      return { p, score }
-    })
-    .filter((x) => (maxPrice ? x.p.price <= maxPrice : true))
-    .sort((a, b) => b.score - a.score || b.p.rating - a.p.rating)
-
-  const top = scored.filter((x) => x.score > 0).slice(0, 3).map((x) => x.p)
-
-  if (top.length === 0) {
-    // fall back to popular items or price filter
-    const fallback = (maxPrice
-      ? scored.map((x) => x.p)
-      : [...products].sort((a, b) => b.rating - a.rating)
-    ).slice(0, 3)
-
-    const cats = categoryTree.map((c) => c.name).join(', ')
-    return {
-      role: 'assistant',
-      text: maxPrice
-        ? `Encontré estas opciones por debajo de ${formatPrice(maxPrice)}:`
-        : `No estoy seguro de haber entendido, pero puedo ayudarte con ${cats}. Acá van algunas ideas populares:`,
-      results: fallback,
-    }
+async function answer(query: string): Promise<Message> {
+  const res = await fetch('/api/nova', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: query }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Nova no respondio')
+  return {
+    role: 'assistant',
+    text: String(data.text || 'Mira, encontre estas opciones:'),
+    results: Array.isArray(data.products) ? data.products : [],
   }
-
-  const intro = maxPrice
-    ? `Estas son mis mejores recomendaciones por debajo de ${formatPrice(maxPrice)}:`
-    : 'Según lo que buscás, te recomiendo:'
-
-  return { role: 'assistant', text: intro, results: top }
 }
 
 export function AiAssistant() {
+  const pathname = usePathname()
+  const { addItem } = useCart()
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
+  const [addedId, setAddedId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      text: '¡Hola! Soy Lumi, tu asistente. Contame qué buscás y te ayudo a encontrar el producto ideal.',
+      text: 'Hola, soy Nova. Contame que estas buscando y te ayudo a encontrarlo en Alta.',
     },
   ])
   const [typing, setTyping] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const typingTimerRef = useRef<number | null>(null)
 
   const canSend = useMemo(() => input.trim().length > 0 && !typing, [input, typing])
 
@@ -107,59 +62,121 @@ export function AiAssistant() {
     }
   }, [messages, open, typing])
 
+  useEffect(() => {
+    return () => {
+      if (typingTimerRef.current) window.clearInterval(typingTimerRef.current)
+    }
+  }, [])
+
+  if (pathname?.startsWith('/cuenta') || pathname === '/links') return null
+
   function send(text: string) {
     const trimmed = text.trim()
     if (!trimmed || typing) return
     setMessages((prev) => [...prev, { role: 'user', text: trimmed }])
     setInput('')
     setTyping(true)
-    // simulate latency of a real model
-    setTimeout(() => {
-      setMessages((prev) => [...prev, answer(trimmed)])
-      setTyping(false)
-    }, 650)
+    answer(trimmed)
+      .then((msg) => {
+        typeAssistantMessage(msg)
+      })
+      .catch(() => {
+        typeAssistantMessage({
+          role: 'assistant',
+          text: 'Se me trabo la consulta un segundo. Proba de nuevo o busca directo desde la tienda.',
+        })
+      })
+  }
+
+  function typeAssistantMessage(message: Message) {
+    if (typingTimerRef.current) window.clearInterval(typingTimerRef.current)
+    const fullText = message.text
+    const messageIndex = messages.length + 1
+    let cursor = 0
+
+    setMessages((prev) => [
+      ...prev,
+      { role: 'assistant', text: '', streaming: true },
+    ])
+
+    typingTimerRef.current = window.setInterval(() => {
+      cursor += Math.max(1, Math.ceil(fullText.length / 42))
+      const nextText = fullText.slice(0, cursor)
+
+      setMessages((prev) =>
+        prev.map((item, index) =>
+          index === messageIndex
+            ? {
+                ...item,
+                text: nextText,
+                streaming: cursor < fullText.length,
+                results: cursor >= fullText.length ? message.results : undefined,
+              }
+            : item,
+        ),
+      )
+
+      if (cursor >= fullText.length) {
+        if (typingTimerRef.current) window.clearInterval(typingTimerRef.current)
+        typingTimerRef.current = null
+        setTyping(false)
+      }
+    }, 22)
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (
-      e.key === 'Enter' &&
-      !e.nativeEvent.isComposing &&
-      e.keyCode !== 229
-    ) {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) {
       e.preventDefault()
       if (canSend) send(input)
     }
   }
 
+  function addProduct(product: Product) {
+    addItem(product, product.colors?.[0] || 'Unico', 1)
+    setAddedId(product.id)
+    window.setTimeout(() => setAddedId(null), 1200)
+  }
+
   return (
     <>
-      {/* Launcher */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Cerrar asistente' : 'Abrir asistente'}
-        className="glass glass-hover fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full text-primary shadow-lg transition-transform hover:scale-105 active:scale-95"
+        className="nova-launcher fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full text-primary transition-transform hover:scale-105 active:scale-95 sm:h-14 sm:w-14"
       >
-        {open ? <X className="h-6 w-6" /> : <Bot className="h-6 w-6" />}
-        {!open && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-            <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-primary" />
+        {open ? (
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm">
+            <X className="h-5 w-5" />
           </span>
+        ) : (
+          <Image
+            src="/nova-avatar.png"
+            alt="Nova, asistente de Alta"
+            fill
+            sizes="56px"
+            className="object-cover"
+            priority
+          />
         )}
       </button>
 
-      {/* Panel */}
       {open && (
-        <div className="glass glass-sheen fixed bottom-24 right-5 z-50 flex h-[70vh] max-h-[560px] w-[calc(100vw-2.5rem)] max-w-sm flex-col overflow-hidden rounded-4xl">
-          <header className="flex items-center gap-3 border-b border-border px-5 py-4">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <Sparkles className="h-4.5 w-4.5" />
+        <div className="liquid-panel liquid-pop fixed bottom-24 right-5 z-50 flex h-[72vh] max-h-[620px] w-[calc(100vw-2.5rem)] max-w-md flex-col overflow-hidden rounded-4xl">
+          <header className="flex items-center gap-3 border-b border-border bg-white/45 px-5 py-4 backdrop-blur-2xl">
+            <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
+              <Image
+                src="/nova-avatar.png"
+                alt="Nova"
+                fill
+                sizes="44px"
+                className="object-cover"
+              />
             </span>
             <div className="leading-tight">
-              <div className="text-sm font-semibold">Lumi · Asistente</div>
+              <div className="text-sm font-semibold">Nova · Asistente Alta</div>
               <div className="text-xs text-muted-foreground">
-                Te ayuda a elegir productos
+                Busca productos reales del catalogo
               </div>
             </div>
           </header>
@@ -173,42 +190,76 @@ export function AiAssistant() {
                 <div
                   className={
                     m.role === 'user'
-                      ? 'ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-sm text-primary-foreground'
-                      : 'w-fit max-w-[90%] rounded-2xl rounded-bl-md bg-secondary px-4 py-2.5 text-sm text-foreground'
+                      ? 'ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-sm text-primary-foreground shadow-[0_18px_42px_-26px_rgba(239,35,60,0.8)]'
+                      : 'w-fit max-w-[92%] rounded-2xl rounded-bl-md bg-white/82 px-4 py-2.5 text-sm text-foreground shadow-sm ring-1 ring-border backdrop-blur-xl'
                   }
                 >
                   {m.text}
+                  {m.streaming && (
+                    <span className="ml-0.5 inline-block h-4 w-1 translate-y-0.5 animate-pulse rounded-full bg-current opacity-45" />
+                  )}
                 </div>
+
                 {m.results && m.results.length > 0 && (
-                  <div className="mt-2 flex flex-col gap-2">
+                  <div className="mt-3 flex flex-col gap-2.5">
                     {m.results.map((p) => (
-                      <Link
+                      <div
                         key={p.id}
-                        href={`/producto/${p.slug}`}
-                        onClick={() => setOpen(false)}
-                        className="glass glass-hover flex items-center gap-3 rounded-2xl p-2.5"
+                        className="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/78 p-2.5 shadow-[0_18px_44px_-34px_rgba(15,23,42,0.8)] backdrop-blur-2xl transition duration-300 hover:-translate-y-0.5 hover:bg-white/92 hover:shadow-[0_22px_58px_-34px_rgba(15,23,42,0.9)]"
                       >
-                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-secondary">
-                          <Image
-                            src={p.image || '/placeholder.svg'}
-                            alt={p.name}
-                            fill
-                            sizes="48px"
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-semibold">
-                            {p.name}
+                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(239,35,60,0.12),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.45),rgba(255,255,255,0))]" />
+                        <div className="relative flex gap-3">
+                          <Link
+                            href={`/producto/${encodeURIComponent(p.id)}`}
+                            onClick={() => setOpen(false)}
+                            className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-white shadow-inner"
+                          >
+                            <Image
+                              src={p.image || '/placeholder.svg'}
+                              alt={p.name}
+                              fill
+                              sizes="64px"
+                              className="object-contain p-1.5 transition-transform duration-500 group-hover:scale-105"
+                            />
+                          </Link>
+                          <div className="min-w-0 flex-1">
+                            <Link
+                              href={`/producto/${encodeURIComponent(p.id)}`}
+                              onClick={() => setOpen(false)}
+                              className="block"
+                            >
+                              <div className="line-clamp-2 text-sm font-bold leading-tight">
+                                {p.name}
+                              </div>
+                              <div className="mt-1 truncate text-xs text-muted-foreground">
+                                {p.subcategory} · {p.tagline}
+                              </div>
+                            </Link>
+                            <div className="mt-2 flex items-center justify-between gap-2">
+                              <div className="text-sm font-black text-primary">
+                                <Price value={p.price} />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => addProduct(p)}
+                                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-[0_12px_28px_-18px_rgba(239,35,60,0.9)] transition-transform hover:scale-105 active:scale-95"
+                              >
+                                {addedId === p.id ? (
+                                  <>
+                                    <Check className="h-3.5 w-3.5" />
+                                    Listo
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="h-3.5 w-3.5" />
+                                    Agregar
+                                  </>
+                                )}
+                              </button>
+                            </div>
                           </div>
-                          <div className="truncate text-xs text-muted-foreground">
-                            {p.subcategory} · {p.tagline}
-                          </div>
                         </div>
-                        <div className="text-sm font-semibold text-primary">
-                          {formatPrice(p.price)}
-                        </div>
-                      </Link>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -216,7 +267,7 @@ export function AiAssistant() {
             ))}
 
             {typing && (
-              <div className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-md bg-secondary px-4 py-3">
+              <div className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-md bg-white/82 px-4 py-3 shadow-sm ring-1 ring-border">
                 <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
                 <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
                 <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" />
@@ -239,13 +290,13 @@ export function AiAssistant() {
             )}
           </div>
 
-          <div className="border-t border-border p-3">
+          <div className="border-t border-border bg-white/35 p-3 backdrop-blur-2xl">
             <div className="glass flex items-center gap-2 rounded-full py-1.5 pl-4 pr-1.5">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Preguntá por un producto…"
+                placeholder="Preguntale a Nova..."
                 className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
               <button
@@ -258,9 +309,6 @@ export function AiAssistant() {
                 <Send className="h-4 w-4" />
               </button>
             </div>
-            <p className="mt-2 text-center text-[10px] text-muted-foreground">
-              Demo · respuestas generadas localmente
-            </p>
           </div>
         </div>
       )}

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Placa de Carga">
+  <defs>
+    <linearGradient id="bg-placa-de-carga" x1="22" y1="16" x2="222" y2="236" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#23ddff"/>
+      <stop offset="1" stop-color="#0c2bff"/>
+    </linearGradient>
+    <radialGradient id="shine-placa-de-carga" cx="36%" cy="24%" r="70%">
+      <stop offset="0" stop-color="white" stop-opacity=".7"/>
+      <stop offset=".42" stop-color="white" stop-opacity=".12"/>
+      <stop offset="1" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow-placa-de-carga" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="black" flood-opacity=".26"/>
+    </filter>
+  </defs>
+  <rect x="18" y="18" width="220" height="220" rx="58" fill="url(#bg-placa-de-carga)" filter="url(#shadow-placa-de-carga)"/>
+  <path d="M-10 212C58 154 84 98 116-10h46C132 96 102 166 8 256z" fill="rgba(255,255,255,.16)"/>
+  <path d="M124-18h36l-20 292h-36z" fill="rgba(239,35,60,.34)" transform="rotate(18 128 128)"/>
+  <path d="M0 194c54-32 128-43 256-18v80H0z" fill="rgba(255,255,255,.12)"/>
+  <rect x="18" y="18" width="220" height="220" rx="58" fill="url(#shine-placa-de-carga)"/>
+  <g>
+    <path d="M84 82v52c0 26 18 42 44 42s44-16 44-42V82" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M104 68v32M152 68v32" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M133 102l-24 38h31l-16 42" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  <rect x="19.5" y="19.5" width="217" height="217" rx="56" fill="none" stroke="rgba(255,255,255,.62)" stroke-width="3"/>
+</svg>

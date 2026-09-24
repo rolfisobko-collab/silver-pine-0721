@@ -4,13 +4,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
-import { formatPrice } from '@/lib/products'
+import { Price } from '@/components/ui/price'
 
 export function CartView() {
   const { items, updateQuantity, removeItem, subtotal } = useCart()
-  const shipping = subtotal > 99 || subtotal === 0 ? 0 : 15
-  const tax = Math.round(subtotal * 0.1)
-  const total = subtotal + shipping + tax
+  const total = subtotal
 
   if (items.length === 0) {
     return (
@@ -21,7 +19,7 @@ export function CartView() {
           </span>
           <h1 className="text-2xl font-semibold">Tu carrito está vacío</h1>
           <p className="max-w-sm text-muted-foreground">
-            Todavía no agregaste productos. Explorá la colección Lumen y
+            Todavía no agregaste productos. Explorá el catálogo de Alta y
             encontrá tu próximo dispositivo.
           </p>
           <Link
@@ -51,7 +49,7 @@ export function CartView() {
               className="glass glass-sheen flex gap-4 rounded-3xl p-4"
             >
               <Link
-                href={`/producto/${item.product.slug}`}
+                href={`/producto/${encodeURIComponent(item.product.id)}`}
                 className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-secondary"
               >
                 <Image
@@ -67,7 +65,7 @@ export function CartView() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <Link
-                      href={`/producto/${item.product.slug}`}
+                      href={`/producto/${encodeURIComponent(item.product.id)}`}
                       className="font-semibold leading-tight"
                     >
                       {item.product.name}
@@ -121,7 +119,7 @@ export function CartView() {
                     </button>
                   </div>
                   <span className="font-semibold">
-                    {formatPrice(item.product.price * item.quantity)}
+                    <Price value={item.product.price * item.quantity} />
                   </span>
                 </div>
               </div>
@@ -136,19 +134,11 @@ export function CartView() {
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Subtotal</dt>
-                <dd>{formatPrice(subtotal)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-muted-foreground">Envío</dt>
-                <dd>{shipping === 0 ? 'Gratis' : formatPrice(shipping)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-muted-foreground">Impuestos (10%)</dt>
-                <dd>{formatPrice(tax)}</dd>
+                <dd><Price value={subtotal} /></dd>
               </div>
               <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
                 <dt>Total</dt>
-                <dd>{formatPrice(total)}</dd>
+                <dd><Price value={total} /></dd>
               </div>
             </dl>
             <Link

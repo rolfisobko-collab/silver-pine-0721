@@ -3,7 +3,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { OrdersView } from '@/components/account/orders-view'
 
 export const metadata = {
-  title: 'Mis pedidos — Lumen',
+  title: 'Mis pedidos — Alta',
 }
 
 export default function OrdersPage() {

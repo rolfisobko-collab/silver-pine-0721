@@ -9,13 +9,14 @@ import {
   trackingSteps,
   type OrderStatus,
 } from '@/components/auth-context'
-import { formatPrice } from '@/lib/products'
+import { Price } from '@/components/ui/price'
 
 const stepIcons: Record<OrderStatus, typeof Check> = {
   Confirmado: ClipboardCheck,
   Preparando: Package,
   Enviado: Truck,
   Entregado: Home,
+  Cancelado: ClipboardCheck,
 }
 
 export function OrdersView() {
@@ -80,8 +81,9 @@ export function OrdersView() {
       ) : (
         <div className="flex flex-col gap-5">
           {orders.map((order) => {
-            const current = statusFromAge(order.createdAt)
+            const current = order.status || statusFromAge(order.createdAt)
             const currentIndex = trackingSteps.indexOf(current)
+            const isCancelled = current === 'Cancelado'
             return (
               <div
                 key={order.id}
@@ -107,7 +109,7 @@ export function OrdersView() {
                 <div className="mt-6 flex items-center">
                   {trackingSteps.map((step, i) => {
                     const Icon = stepIcons[step]
-                    const done = i <= currentIndex
+                    const done = !isCancelled && i <= currentIndex
                     return (
                       <div key={step} className="flex flex-1 items-center last:flex-none">
                         <div className="flex flex-col items-center gap-1.5">
@@ -165,7 +167,7 @@ export function OrdersView() {
                         </div>
                       </div>
                       <div className="text-sm font-medium">
-                        {formatPrice(item.price * item.quantity)}
+                        <Price value={item.price * item.quantity} />
                       </div>
                     </div>
                   ))}
@@ -176,7 +178,7 @@ export function OrdersView() {
                     Envío a {order.city}
                   </span>
                   <span className="font-semibold">
-                    Total {formatPrice(order.total)}
+                    Total <Price value={order.total} />
                   </span>
                 </div>
               </div>

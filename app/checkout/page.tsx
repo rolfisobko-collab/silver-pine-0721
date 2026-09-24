@@ -3,7 +3,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { CheckoutView } from '@/components/checkout/checkout-view'
 
 export const metadata = {
-  title: 'Checkout — Lumen',
+  title: 'Checkout — Alta',
 }
 
 export default function CheckoutPage() {

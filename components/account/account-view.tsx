@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, LogOut, Mail, Package, User } from 'lucide-react'
+import { ArrowRight, Gift, LogOut, Mail, Package, User } from 'lucide-react'
 import { useAuth, statusFromAge } from '@/components/auth-context'
 import { AuthForm } from '@/components/account/auth-form'
-import { formatPrice } from '@/lib/products'
+import { Price } from '@/components/ui/price'
 
 export function AccountView() {
   const { user, ready, logout, orders } = useAuth()
@@ -50,6 +50,20 @@ export function AccountView() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
+        <div className="glass glass-sheen flex items-center justify-between rounded-3xl p-6">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
+              <Gift className="h-5 w-5" />
+            </span>
+            <div>
+              <div className="font-semibold">Puntos Alta</div>
+              <div className="text-sm text-muted-foreground">
+                {Number(user.points || 0)} punto{Number(user.points || 0) !== 1 && 's'}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <Link
           href="/cuenta/pedidos"
           className="glass glass-sheen glass-hover glass-liquid flex items-center justify-between rounded-3xl p-6"
@@ -124,7 +138,7 @@ export function AccountView() {
                   </div>
                   <p className="truncate text-sm text-muted-foreground">
                     {o.items.length} artículo{o.items.length !== 1 && 's'} ·{' '}
-                    {formatPrice(o.total)}
+                    <Price value={o.total} />
                   </p>
                 </div>
               </div>

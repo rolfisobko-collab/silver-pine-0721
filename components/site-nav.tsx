@@ -1,36 +1,67 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { type FormEvent, useEffect, useRef, useState } from 'react'
 import {
   ChevronDown,
   LogOut,
   Menu,
   Package,
+  Search,
   ShoppingBag,
   User,
   X,
 } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
 import { useAuth } from '@/components/auth-context'
+import { BrandMark } from '@/components/brand-mark'
+import { CategoryTreeSelect } from '@/components/ui/category-tree-select'
 import { categoryTree } from '@/lib/products'
 import { cn } from '@/lib/utils'
 
 export function SiteNav() {
   const pathname = usePathname()
+  const router = useRouter()
   const { count } = useCart()
   const { user, logout, ready } = useAuth()
   const [open, setOpen] = useState(false)
-  const [catOpen, setCatOpen] = useState(false)
+  const [categorySelection, setCategorySelection] = useState<{ category: string; subcategory?: string | null } | null>(null)
   const [userOpen, setUserOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [navTree, setNavTree] = useState(categoryTree)
   const userRef = useRef<HTMLDivElement>(null)
+  const isCatalog = pathname === '/catalogo'
 
   useEffect(() => {
     setOpen(false)
-    setCatOpen(false)
+    setCategorySelection(null)
     setUserOpen(false)
+    setSearchOpen(false)
   }, [pathname])
+
+  function goToCategory(selection: { category: string; subcategory?: string | null } | null) {
+    setCategorySelection(selection)
+    if (!selection) {
+      router.push('/catalogo')
+      setOpen(false)
+      return
+    }
+    const params = new URLSearchParams({ cat: selection.category })
+    if (selection.subcategory) params.set('sub', selection.subcategory)
+    router.push(`/catalogo?${params.toString()}`)
+    setOpen(false)
+  }
+
+  function submitSearch(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const query = searchQuery.trim()
+    if (!query) return
+    router.push(`/catalogo?q=${encodeURIComponent(query)}`)
+    setOpen(false)
+    setSearchOpen(false)
+  }
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -42,83 +73,88 @@ export function SiteNav() {
     return () => document.removeEventListener('mousedown', onClick)
   }, [])
 
+  useEffect(() => {
+    let cancelled = false
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories')
+        const data = await res.json()
+        if (!cancelled && Array.isArray(data.tree) && data.tree.length > 0) {
+          setNavTree(data.tree)
+        }
+      } catch {
+        // Keep static fallback.
+      }
+    }
+    loadCategories()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4">
-      <nav className="glass glass-sheen mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 sm:px-6">
+      <nav className="glass mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-3 py-2.5 sm:rounded-full sm:px-5">
         <Link
           href="/"
-          className="flex items-center gap-2 pl-1 text-lg font-semibold tracking-tight"
+          className="flex items-center pl-1"
+          aria-label="Alta, ir al inicio"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <span className="h-2.5 w-2.5 rounded-full bg-primary-foreground" />
-          </span>
-          Lumen
+          <BrandMark />
         </Link>
 
-        {/* Desktop links */}
         <div className="hidden items-center gap-1 md:flex">
           <NavLink href="/" label="Inicio" active={pathname === '/'} />
           <NavLink
             href="/catalogo"
-            label="Catálogo"
+            label="Catalogo"
             active={pathname === '/catalogo'}
           />
 
-          {/* Categories mega-menu */}
-          <div
-            className="relative"
-            onMouseEnter={() => setCatOpen(true)}
-            onMouseLeave={() => setCatOpen(false)}
-          >
-            <button
-              type="button"
-              onClick={() => setCatOpen((v) => !v)}
-              className="flex items-center gap-1 rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              aria-expanded={catOpen}
-            >
-              Categorías
-              <ChevronDown
-                className={cn(
-                  'h-4 w-4 transition-transform',
-                  catOpen && 'rotate-180',
-                )}
-              />
-            </button>
-
-            {catOpen && (
-              <div className="absolute left-1/2 top-full w-[min(46rem,90vw)] -translate-x-1/2 pt-3">
-                <div className="glass-strong glass-sheen grid grid-cols-2 gap-2 rounded-3xl p-4 sm:grid-cols-3 lg:grid-cols-5">
-                  {categoryTree.map((c) => (
-                    <div key={c.name}>
-                      <Link
-                        href={`/catalogo?cat=${encodeURIComponent(c.name)}`}
-                        className="block rounded-xl px-2 py-1.5 text-sm font-semibold transition-colors hover:text-primary"
-                      >
-                        {c.name}
-                      </Link>
-                      <ul className="mt-1 space-y-0.5">
-                        {c.subcategories.map((s) => (
-                          <li key={s}>
-                            <Link
-                              href={`/catalogo?cat=${encodeURIComponent(c.name)}&sub=${encodeURIComponent(s)}`}
-                              className="block rounded-xl px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                            >
-                              {s}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <CategoryTreeSelect
+            value={categorySelection}
+            onChange={goToCategory}
+            tree={navTree}
+            placeholder="Categorias"
+            ariaLabel="Elegir categoria o subcategoria"
+            className="w-56"
+            buttonClassName="h-10 rounded-full bg-white/60 px-4 py-2 shadow-none"
+            menuClassName="w-[min(24rem,calc(100vw-2rem))]"
+          />
         </div>
 
-        {/* Right actions */}
+        <form
+          onSubmit={submitSearch}
+          className={cn(
+            'hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-full border border-border bg-secondary/70 px-4 py-2 lg:mx-5 lg:flex',
+            isCatalog && 'lg:hidden',
+          )}
+          role="search"
+        >
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar productos"
+            aria-label="Buscar productos"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+        </form>
+
         <div className="flex items-center gap-2">
-          {/* Account (desktop) */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen((v) => !v)}
+            className={cn(
+              'glass-hover flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white lg:hidden',
+              isCatalog && 'hidden',
+            )}
+            aria-label={searchOpen ? 'Cerrar buscador' : 'Abrir buscador'}
+            aria-expanded={searchOpen}
+          >
+            <Search className="h-4.5 w-4.5" />
+          </button>
+
           {ready && (
             <div className="relative hidden md:block" ref={userRef}>
               {user ? (
@@ -138,7 +174,7 @@ export function SiteNav() {
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                   {userOpen && (
-                    <div className="glass-strong glass-sheen absolute right-0 top-full mt-2 w-52 rounded-2xl p-2">
+                    <div className="liquid-panel liquid-pop absolute right-0 top-full mt-2 w-52 rounded-2xl p-2">
                       <MenuItem href="/cuenta" icon={User} label="Mi perfil" />
                       <MenuItem
                         href="/cuenta/pedidos"
@@ -151,7 +187,7 @@ export function SiteNav() {
                         className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                       >
                         <LogOut className="h-4 w-4" />
-                        Cerrar sesión
+                        Cerrar sesion
                       </button>
                     </div>
                   )}
@@ -170,7 +206,7 @@ export function SiteNav() {
 
           <Link
             href="/carrito"
-            className="glass glass-hover relative flex h-10 w-10 items-center justify-center rounded-full"
+            className="glass-hover relative flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white"
             aria-label="Ver carrito"
           >
             <ShoppingBag className="h-4.5 w-4.5" />
@@ -184,8 +220,8 @@ export function SiteNav() {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="glass glass-hover flex h-10 w-10 items-center justify-center rounded-full md:hidden"
-            aria-label="Abrir menú"
+            className="glass-hover flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white md:hidden"
+            aria-label="Abrir menu"
             aria-expanded={open}
           >
             {open ? (
@@ -197,41 +233,38 @@ export function SiteNav() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
-      {open && (
-        <div className="glass-strong glass-sheen mx-auto mt-2 max-h-[75vh] max-w-6xl overflow-y-auto rounded-3xl p-3 md:hidden">
-          <MobileLink href="/" label="Inicio" />
-          <MobileLink href="/catalogo" label="Catálogo" />
+      {searchOpen && (
+        <form
+          onSubmit={submitSearch}
+          className="liquid-panel liquid-pop mx-auto mt-2 flex max-w-6xl items-center gap-3 rounded-2xl p-2 pl-4 lg:hidden"
+          role="search"
+        >
+          <Search className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
+          <input
+            autoFocus
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Que estas buscando?"
+            aria-label="Buscar productos"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            type="submit"
+            className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+          >
+            Buscar
+          </button>
+        </form>
+      )}
 
-          <div className="my-2 border-t border-border" />
-          <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Categorías
-          </p>
-          {categoryTree.map((c) => (
-            <div key={c.name} className="mb-1">
-              <Link
-                href={`/catalogo?cat=${encodeURIComponent(c.name)}`}
-                className="block rounded-2xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary"
-              >
-                {c.name}
-              </Link>
-              <div className="flex flex-wrap gap-1.5 px-3 pb-2 pt-1">
-                {c.subcategories.map((s) => (
-                  <Link
-                    key={s}
-                    href={`/catalogo?cat=${encodeURIComponent(c.name)}&sub=${encodeURIComponent(s)}`}
-                    className="rounded-full bg-secondary px-3 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {s}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
+      {open && (
+        <div className="liquid-panel liquid-pop mx-auto mt-2 max-h-[75vh] max-w-6xl overflow-y-auto rounded-3xl p-3 md:hidden">
+          <MobileLink href="/" label="Inicio" />
+          <MobileLink href="/catalogo" label="Catalogo" />
 
           <div className="my-2 border-t border-border" />
           {user ? (
-            <>
+            <div className="rounded-2xl bg-secondary/70 p-2">
               <MobileLink href="/cuenta" label="Mi perfil" />
               <MobileLink href="/cuenta/pedidos" label="Mis pedidos" />
               <button
@@ -240,14 +273,33 @@ export function SiteNav() {
                   logout()
                   setOpen(false)
                 }}
-                className="block w-full rounded-2xl px-3 py-3 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="block w-full rounded-2xl px-3 py-3 text-left text-sm text-muted-foreground transition-colors hover:bg-white hover:text-foreground"
               >
-                Cerrar sesión
+                Cerrar sesion
               </button>
-            </>
+            </div>
           ) : (
-            <MobileLink href="/cuenta" label="Ingresar / Registrarse" />
+            <Link
+              href="/cuenta"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-3 py-3 text-sm font-bold text-primary-foreground shadow-[0_16px_35px_-24px_rgba(239,35,60,0.8)]"
+            >
+              <User className="h-4 w-4" />
+              Ingresar / Registrarse
+            </Link>
           )}
+
+          <div className="my-2 border-t border-border" />
+          <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Categorias
+          </p>
+          <CategoryTreeSelect
+            value={categorySelection}
+            onChange={goToCategory}
+            tree={navTree}
+            placeholder="Todas las categorías"
+            ariaLabel="Elegir categoria o subcategoria"
+            buttonClassName="bg-white/80"
+          />
         </div>
       )}
     </header>

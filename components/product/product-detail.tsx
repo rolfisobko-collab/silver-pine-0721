@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Check, ChevronLeft, Minus, Plus, ShoppingBag, Star } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
-import { formatPrice, type Product } from '@/lib/products'
+import { Price } from '@/components/ui/price'
+import { type Product } from '@/lib/products'
 import { cn } from '@/lib/utils'
 
 export function ProductDetail({ product }: { product: Product }) {
@@ -13,8 +14,11 @@ export function ProductDetail({ product }: { product: Product }) {
   const [color, setColor] = useState(product.colors[0])
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
+  const hasStock = Number(product.quantity ?? product.stock ?? 0) > 0
+  const hasPrice = Number(product.price || 0) > 0
 
   function handleAdd() {
+    if (!hasPrice) return
     addItem(product, color, qty)
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
@@ -32,19 +36,24 @@ export function ProductDetail({ product }: { product: Product }) {
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Gallery */}
-        <div className="glass glass-sheen relative overflow-hidden rounded-4xl p-8">
-          <div className="absolute left-5 top-5 rounded-full bg-foreground/70 px-3 py-1 text-xs font-medium text-background backdrop-blur-md">
+        <div className="glass relative aspect-square overflow-hidden rounded-4xl bg-white">
+          <div className="hidden">
             {product.category} · {product.subcategory}
           </div>
-          <div className="relative aspect-square">
-            <Image
-              src={product.image || '/placeholder.svg'}
-              alt={product.name}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-contain drop-shadow-2xl"
-            />
+          <Image
+            src={product.image || '/placeholder.svg'}
+            alt={product.name}
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+          />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/25 to-transparent" />
+          <div className="pointer-events-none absolute bottom-4 left-4 right-4 z-10 flex flex-wrap gap-2">
+            <span className="max-w-full truncate rounded-full bg-black/60 px-3 py-1.5 text-xs font-medium text-white shadow-sm backdrop-blur-md">
+              {product.category}
+              {product.subcategory && product.subcategory !== product.category ? ` - ${product.subcategory}` : ''}
+            </span>
           </div>
         </div>
 
@@ -79,7 +88,10 @@ export function ProductDetail({ product }: { product: Product }) {
           </p>
 
           <div className="mt-6 text-4xl font-semibold">
-            {formatPrice(product.price)}
+            {hasPrice ? <Price value={product.price} /> : 'Consultar precio'}
+          </div>
+          <div className={hasStock ? 'mt-2 text-sm font-semibold text-emerald-600' : 'mt-2 text-sm font-semibold text-amber-600'}>
+            {hasStock ? 'Disponible' : 'Sin stock'}
           </div>
 
           {/* Colors */}
@@ -131,7 +143,8 @@ export function ProductDetail({ product }: { product: Product }) {
             <button
               type="button"
               onClick={handleAdd}
-              className="group flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95"
+              disabled={!hasPrice}
+              className="group flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {added ? (
                 <>
@@ -149,8 +162,8 @@ export function ProductDetail({ product }: { product: Product }) {
           <div className="glass glass-sheen mt-8 rounded-3xl p-6">
             <h2 className="mb-4 text-sm font-semibold">Características clave</h2>
             <ul className="grid gap-3 sm:grid-cols-2">
-              {product.highlights.map((h) => (
-                <li key={h} className="flex items-start gap-2 text-sm">
+              {product.highlights.map((h, index) => (
+                <li key={`${h}-${index}`} className="flex items-start gap-2 text-sm">
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
                     <Check className="h-3 w-3" />
                   </span>

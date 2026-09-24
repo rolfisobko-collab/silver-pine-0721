@@ -10,7 +10,7 @@ import {
 } from 'react'
 import type { Product } from '@/lib/products'
 
-const CART_KEY = 'lumen_cart'
+const CART_KEY = 'alta_cart'
 
 export type CartItem = {
   product: Product
@@ -87,6 +87,16 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
+const emptyCart: CartContextValue = {
+  items: [],
+  addItem: () => {},
+  removeItem: () => {},
+  updateQuantity: () => {},
+  clear: () => {},
+  count: 0,
+  subtotal: 0,
+}
+
 function init(): CartState {
   if (typeof window === 'undefined') return { items: [] }
   try {
@@ -132,6 +142,5 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
   const ctx = useContext(CartContext)
-  if (!ctx) throw new Error('useCart debe usarse dentro de CartProvider')
-  return ctx
+  return ctx ?? emptyCart
 }

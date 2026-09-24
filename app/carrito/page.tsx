@@ -3,7 +3,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { CartView } from '@/components/cart/cart-view'
 
 export const metadata = {
-  title: 'Carrito — Lumen',
+  title: 'Carrito — Alta',
 }
 
 export default function CartPage() {

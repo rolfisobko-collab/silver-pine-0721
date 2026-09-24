@@ -1,0 +1,110 @@
+'use client'
+
+import { initializeApp, getApps } from 'firebase/app'
+import {
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  getAuth,
+  getRedirectResult,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  setPersistence,
+  signInWithEmailAndPassword,
+  signInWithRedirect,
+  signOut,
+  updateProfile,
+  type User as FirebaseUser,
+} from 'firebase/auth'
+
+let authReady: Promise<void> | null = null
+
+export function hasFirebaseConfig() {
+  return Boolean(
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+      process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN &&
+      process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID &&
+      process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  )
+}
+
+export function getFirebaseAuth() {
+  if (!hasFirebaseConfig()) return null
+  const app =
+    getApps()[0] ??
+    initializeApp({
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    })
+  return getAuth(app)
+}
+
+async function ensureAuthReady() {
+  const auth = getFirebaseAuth()
+  if (!auth) throw new Error('Firebase no configurado')
+  authReady ??= setPersistence(auth, browserLocalPersistence).catch(() => undefined)
+  await authReady
+  return auth
+}
+
+export function toAltaUser(firebaseUser: FirebaseUser) {
+  return {
+    id: firebaseUser.uid,
+    name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Cliente Alta',
+    email: firebaseUser.email || '',
+    photoURL: firebaseUser.photoURL || '',
+    points: 0,
+  }
+}
+
+export async function firebaseLogin(email: string, password: string) {
+  const auth = await ensureAuthReady()
+  const result = await signInWithEmailAndPassword(auth, email, password)
+  return toAltaUser(result.user)
+}
+
+export async function firebaseRegister(name: string, email: string, password: string) {
+  const auth = await ensureAuthReady()
+  const result = await createUserWithEmailAndPassword(auth, email, password)
+  if (name.trim()) await updateProfile(result.user, { displayName: name.trim() })
+  return { ...toAltaUser(result.user), name: name.trim() || toAltaUser(result.user).name }
+}
+
+export async function firebaseGoogleLogin() {
+  const auth = await ensureAuthReady()
+  const provider = new GoogleAuthProvider()
+  provider.setCustomParameters({ prompt: 'select_account' })
+  await signInWithRedirect(auth, provider)
+  return null
+}
+
+export async function firebaseResetPassword(email: string) {
+  const auth = await ensureAuthReady()
+  await sendPasswordResetEmail(auth, email)
+}
+
+export async function firebaseLogout() {
+  const auth = getFirebaseAuth()
+  if (auth) await signOut(auth)
+}
+
+export function listenFirebaseAuth(callback: (user: ReturnType<typeof toAltaUser> | null) => void) {
+  const auth = getFirebaseAuth()
+  if (!auth) return () => {}
+  let active = true
+  ensureAuthReady()
+    .then(async (readyAuth) => {
+      const result = await getRedirectResult(readyAuth).catch(() => null)
+      if (active && result?.user) callback(toAltaUser(result.user))
+    })
+    .catch(() => undefined)
+  const unsubscribe = onAuthStateChanged(auth, (user) => callback(user ? toAltaUser(user) : null))
+  return () => {
+    active = false
+    unsubscribe()
+  }
+}

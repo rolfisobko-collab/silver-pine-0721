@@ -12,33 +12,57 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+const siteDescription =
+  'Repuestos, accesorios, equipos y servicio tecnico en Alta Telefonia. Compra simple, catalogo real y atencion por WhatsApp.'
+
 export const metadata: Metadata = {
-  title: 'Lumen — Premium Tech, Liquid Glass Experience',
-  description:
-    'Lumen is a premium electronics store. Discover headphones, phones, laptops and wearables in a Liquid Glass interface.',
-  generator: 'v0.app',
+  metadataBase: new URL('https://www.altatelefonia.com.ar'),
+  title: {
+    default: 'Alta Telefonia',
+    template: '%s | Alta Telefonia',
+  },
+  description: siteDescription,
+  applicationName: 'Alta Telefonia',
+  keywords: [
+    'Alta Telefonia',
+    'repuestos celulares',
+    'accesorios celulares',
+    'servicio tecnico',
+    'Posadas',
+    'Misiones',
+  ],
   icons: {
-    icon: [
+    icon: '/alta-logo.png',
+    shortcut: '/alta-logo.png',
+    apple: '/alta-logo.png',
+  },
+  openGraph: {
+    title: 'Alta Telefonia',
+    description: siteDescription,
+    url: '/',
+    siteName: 'Alta Telefonia',
+    locale: 'es_AR',
+    type: 'website',
+    images: [
       {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/alta-logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Alta Telefonia',
       },
     ],
-    apple: '/apple-icon.png',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Alta Telefonia',
+    description: siteDescription,
+    images: ['/alta-logo.png'],
   },
 }
 
 export const viewport: Viewport = {
   colorScheme: 'light',
-  themeColor: '#faf9f7',
+  themeColor: '#f5f5f7',
 }
 
 export default function RootLayout({

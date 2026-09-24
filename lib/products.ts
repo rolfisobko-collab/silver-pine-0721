@@ -21,6 +21,15 @@ export type Product = {
   colors: string[]
   featured?: boolean
   highlights: string[]
+  quantity?: number
+  stock?: number
+  sku?: number | null
+  barcode?: string
+  tags?: string[]
+  context?: string
+  deviceBrand?: string
+  deviceModel?: string
+  partBrand?: string
 }
 
 /** Category → subcategory tree used across the whole site. */
@@ -43,7 +52,7 @@ export const products: Product[] = [
     price: 349,
     category: 'Audio',
     subcategory: 'Auriculares',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/headphones.png',
     rating: 4.8,
     reviews: 1240,
@@ -59,14 +68,14 @@ export const products: Product[] = [
   {
     id: '2',
     slug: 'lumen-phone-x',
-    name: 'Lumen Phone X',
+    name: 'Alta Phone X',
     tagline: 'Titanio. Ligero. Imparable.',
     description:
       'Un smartphone insignia con chasis de titanio, pantalla OLED de 6.7", cámara de 50 MP y el chip más rápido de su generación.',
     price: 1099,
     category: 'Teléfonos',
     subcategory: 'Smartphones',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/smartphone.png',
     rating: 4.9,
     reviews: 3820,
@@ -76,27 +85,27 @@ export const products: Product[] = [
       'Chasis de titanio aeroespacial',
       'Pantalla OLED 120 Hz',
       'Sistema de cámara triple 50 MP',
-      'Chip Lumen A18 Bionic',
+      'Chip A18 Bionic',
     ],
   },
   {
     id: '3',
     slug: 'lumen-book-air',
-    name: 'Lumen Book Air',
+    name: 'Alta Book Air',
     tagline: 'Potencia que flota en tus manos',
     description:
       'Ultrabook de 13" con solo 1.1 kg, pantalla Liquid Retina, batería de 18 horas y rendimiento silencioso sin ventilador.',
     price: 1299,
     category: 'Computadoras',
     subcategory: 'Laptops',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/laptop.png',
     rating: 4.7,
     reviews: 980,
     colors: ['Gris espacial', 'Plata'],
     featured: true,
     highlights: [
-      'Chip Lumen M4',
+      'Chip M4',
       '18 h de autonomía',
       'Pantalla Liquid Retina',
       'Diseño sin ventilador',
@@ -112,7 +121,7 @@ export const products: Product[] = [
     price: 429,
     category: 'Wearables',
     subcategory: 'Smartwatches',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/smartwatch.png',
     rating: 4.6,
     reviews: 2110,
@@ -135,7 +144,7 @@ export const products: Product[] = [
     price: 199,
     category: 'Audio',
     subcategory: 'Auriculares',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/earbuds.png',
     rating: 4.5,
     reviews: 1650,
@@ -150,22 +159,22 @@ export const products: Product[] = [
   {
     id: '6',
     slug: 'lumen-pad-11',
-    name: 'Lumen Pad 11',
+    name: 'Alta Pad 11',
     tagline: 'El lienzo que te sigue',
     description:
       'Tablet de 11" con pantalla laminada, soporte para lápiz de precisión y potencia de escritorio en un cuerpo ultrafino.',
     price: 799,
     category: 'Computadoras',
     subcategory: 'Tablets',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/tablet.png',
     rating: 4.7,
     reviews: 740,
     colors: ['Gris espacial', 'Azul'],
     highlights: [
       'Pantalla laminada de 11"',
-      'Compatible con Lumen Pencil',
-      'Chip Lumen M2',
+      'Compatible con lápiz digital',
+      'Chip M2',
       'USB-C Thunderbolt',
     ],
   },
@@ -179,7 +188,7 @@ export const products: Product[] = [
     price: 179,
     category: 'Audio',
     subcategory: 'Parlantes',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/speaker.png',
     rating: 4.4,
     reviews: 890,
@@ -194,14 +203,14 @@ export const products: Product[] = [
   {
     id: '8',
     slug: 'lumen-keys',
-    name: 'Lumen Keys',
+    name: 'Alta Keys',
     tagline: 'Escribe como en las nubes',
     description:
       'Teclado mecánico de bajo perfil, inalámbrico, con retroiluminación adaptativa y estructura de aluminio unibody.',
     price: 149,
     category: 'Accesorios',
     subcategory: 'Teclados',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/keyboard.png',
     rating: 4.6,
     reviews: 520,
@@ -223,7 +232,7 @@ export const products: Product[] = [
     price: 89,
     category: 'Audio',
     subcategory: 'Parlantes',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/speaker.png',
     rating: 4.3,
     reviews: 410,
@@ -238,21 +247,21 @@ export const products: Product[] = [
   {
     id: '10',
     slug: 'lumen-phone-mini',
-    name: 'Lumen Phone Mini',
+    name: 'Alta Phone Mini',
     tagline: 'Todo el poder, la mitad del tamaño',
     description:
       'Smartphone compacto de 6.1" con el mismo chip insignia, cámara dual de 48 MP y una batería que rinde todo el día.',
     price: 899,
     category: 'Teléfonos',
     subcategory: 'Smartphones',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/smartphone.png',
     rating: 4.6,
     reviews: 1520,
     colors: ['Grafito', 'Blanco estelar', 'Rojo'],
     highlights: [
       'Formato compacto de 6.1"',
-      'Chip Lumen A18',
+      'Chip A18',
       'Cámara dual 48 MP',
       'Batería todo el día',
     ],
@@ -260,14 +269,14 @@ export const products: Product[] = [
   {
     id: '11',
     slug: 'lumen-case-x',
-    name: 'Lumen Case X',
+    name: 'Alta Case X',
     tagline: 'Protección que se siente premium',
     description:
-      'Funda de silicona líquida con interior de microfibra, protección contra caídas y ajuste perfecto para el Lumen Phone X.',
+      'Funda de silicona líquida con interior de microfibra, protección contra caídas y ajuste perfecto para el Alta Phone X.',
     price: 49,
     category: 'Teléfonos',
     subcategory: 'Fundas',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/case.png',
     rating: 4.5,
     reviews: 980,
@@ -282,14 +291,14 @@ export const products: Product[] = [
   {
     id: '12',
     slug: 'lumen-charge-pro',
-    name: 'Lumen Charge Pro',
+    name: 'Alta Charge Pro',
     tagline: 'De 0 a 50% en 20 minutos',
     description:
       'Cargador USB-C de 65 W con tecnología GaN, cable trenzado incluido y protección inteligente contra sobrecarga.',
     price: 59,
     category: 'Teléfonos',
     subcategory: 'Cargadores',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/charger.png',
     rating: 4.7,
     reviews: 640,
@@ -304,14 +313,14 @@ export const products: Product[] = [
   {
     id: '13',
     slug: 'lumen-view-27',
-    name: 'Lumen View 27',
+    name: 'Alta View 27',
     tagline: 'Color que cobra vida',
     description:
       'Monitor 4K de 27" con cobertura P3 del 99%, marcos ultrafinos y calibración de fábrica para creativos exigentes.',
     price: 649,
     category: 'Computadoras',
     subcategory: 'Monitores',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/monitor.png',
     rating: 4.6,
     reviews: 320,
@@ -326,14 +335,14 @@ export const products: Product[] = [
   {
     id: '14',
     slug: 'lumen-mouse',
-    name: 'Lumen Mouse',
+    name: 'Alta Mouse',
     tagline: 'Precisión que fluye',
     description:
       'Mouse inalámbrico ergonómico con sensor de alta precisión, scroll magnético y hasta 70 días de batería.',
     price: 79,
     category: 'Accesorios',
     subcategory: 'Mouse',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/mouse.png',
     rating: 4.5,
     reviews: 450,
@@ -355,7 +364,7 @@ export const products: Product[] = [
     price: 99,
     category: 'Wearables',
     subcategory: 'Bandas',
-    brand: 'Lumen',
+    brand: 'Alta',
     image: '/products/band.png',
     rating: 4.4,
     reviews: 1180,
@@ -380,9 +389,8 @@ export function getSubcategories(category: Category): string[] {
 }
 
 export function formatPrice(value: number): string {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'USD',
+  return `ARS $ ${new Intl.NumberFormat('es-AR', {
     maximumFractionDigits: 0,
-  }).format(value)
+    minimumFractionDigits: 0,
+  }).format(Math.round(Number(value) || 0))}`
 }

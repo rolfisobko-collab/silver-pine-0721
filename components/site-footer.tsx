@@ -1,48 +1,70 @@
 import Link from 'next/link'
+import { MapPin, MessageCircle } from 'lucide-react'
+import { BrandMark } from '@/components/brand-mark'
 
 const groups = [
   {
-    title: 'Tienda',
-    links: ['Novedades', 'Audio', 'Teléfonos', 'Computadoras', 'Wearables'],
+    title: 'Comprar',
+    links: [
+      { label: 'Catalogo completo', href: '/catalogo' },
+      { label: 'Modulos', href: '/catalogo?cat=Modulos' },
+      { label: 'Baterias', href: '/catalogo?cat=Baterias' },
+      { label: 'Glass', href: '/catalogo?cat=Glass' },
+      { label: 'Herramientas', href: '/catalogo?cat=Herramientas%20e%20insumos' },
+    ],
   },
   {
-    title: 'Soporte',
-    links: ['Envíos', 'Devoluciones', 'Garantía', 'Contacto'],
+    title: 'Ayuda',
+    links: [
+      { label: 'Como comprar', href: '/como-comprar' },
+      { label: 'Envios y retiro', href: '/envios' },
+      { label: 'Garantia', href: '/garantia' },
+      { label: 'Cambios y devoluciones', href: '/devoluciones' },
+      { label: 'Servicio tecnico', href: '/servicio-tecnico' },
+    ],
   },
   {
-    title: 'Empresa',
-    links: ['Sobre Lumen', 'Sostenibilidad', 'Prensa', 'Trabajá con nosotros'],
+    title: 'Alta',
+    links: [
+      { label: 'Sobre Alta', href: '/sobre-alta' },
+      { label: 'Canales de contacto', href: '/links' },
+      { label: 'Mi cuenta', href: '/cuenta' },
+      { label: 'Mis pedidos', href: '/cuenta/pedidos' },
+      { label: 'Carrito', href: '/carrito' },
+    ],
   },
 ]
 
 export function SiteFooter() {
   return (
     <footer className="px-4 pb-8 pt-16">
-      <div className="glass glass-sheen mx-auto max-w-6xl rounded-4xl p-8 sm:p-12">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+      <div className="mx-auto max-w-6xl rounded-4xl border border-border bg-white p-7 shadow-sm sm:p-12">
+        <div className="grid grid-cols-2 gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
-            <div className="flex items-center gap-2 text-lg font-semibold">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <span className="h-2.5 w-2.5 rounded-full bg-primary-foreground" />
-              </span>
-              Lumen
-            </div>
+            <BrandMark />
             <p className="mt-4 max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground">
-              Tecnología premium con una experiencia Liquid Glass. Diseñada para
-              durar, pensada para inspirar.
+              Repuestos, accesorios, herramientas y servicio tecnico con
+              catalogo conectado y atencion por WhatsApp.
             </p>
+            <Link
+              href="/links"
+              className="mt-5 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5"
+            >
+              Contactar Alta
+            </Link>
           </div>
+
           {groups.map((g) => (
             <div key={g.title}>
               <h3 className="text-sm font-semibold">{g.title}</h3>
               <ul className="mt-4 space-y-2.5">
                 {g.links.map((l) => (
-                  <li key={l}>
+                  <li key={l.href}>
                     <Link
-                      href="/catalogo"
+                      href={l.href}
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
-                      {l}
+                      {l.label}
                     </Link>
                   </li>
                 ))}
@@ -50,9 +72,36 @@ export function SiteFooter() {
             </div>
           ))}
         </div>
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} Lumen. Todos los derechos reservados.</p>
-          <p>Hecho con estética Liquid Glass.</p>
+
+        <div className="mt-10 grid gap-4 border-t border-border pt-6 text-xs text-muted-foreground md:grid-cols-[1fr_auto] md:items-center">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5">
+            <p>Alta Telefonia - {new Date().getFullYear()}.</p>
+            <Link
+              href="https://maps.app.goo.gl/djvc5T4ns7NMsWHU9"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
+            >
+              <MapPin className="h-3.5 w-3.5" />
+              Catamarca 1928, Posadas
+            </Link>
+            <Link
+              href="https://wa.me/5493764572478"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              WhatsApp ventas
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-3 md:justify-end">
+            <Link href="/garantia" className="transition-colors hover:text-foreground">
+              Garantia
+            </Link>
+            <Link href="/envios" className="transition-colors hover:text-foreground">
+              Envios
+            </Link>
+            <Link href="/devoluciones" className="transition-colors hover:text-foreground">
+              Cambios
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
