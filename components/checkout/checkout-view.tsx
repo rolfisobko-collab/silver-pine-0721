@@ -82,11 +82,11 @@ function PhoneField({
   return (
     <label htmlFor="phone" className="block">
       <span className="mb-1.5 block text-sm font-medium">WhatsApp</span>
-      <div className="glass flex min-h-12 overflow-hidden rounded-2xl text-sm transition-shadow focus-within:ring-2 focus-within:ring-primary/60">
+      <div className="grid min-h-12 grid-cols-[92px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-border bg-white/72 text-sm shadow-sm transition-shadow focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/35 sm:grid-cols-[104px_minmax(0,1fr)]">
         <select
           value={current.dial}
           onChange={(event) => onCountryChange(event.target.value)}
-          className="w-[116px] shrink-0 border-r border-border bg-white/35 px-3 font-semibold outline-none backdrop-blur-xl sm:w-[132px]"
+          className="min-w-0 border-r border-border bg-transparent px-3 font-semibold outline-none"
           aria-label="Codigo de pais"
         >
           {phoneCountries.map((item) => (
@@ -104,7 +104,7 @@ function PhoneField({
           value={phone}
           onChange={(event) => onPhoneChange(event.target.value)}
           placeholder={current.placeholder}
-          className="min-w-0 flex-1 bg-transparent px-4 py-3 outline-none placeholder:text-muted-foreground"
+          className="min-w-0 bg-transparent px-3 py-3 text-[15px] outline-none placeholder:text-muted-foreground sm:px-4"
         />
       </div>
       <div
@@ -123,7 +123,7 @@ function PhoneField({
         <span>
           {hasValue
             ? valid
-              ? `Formato listo para WhatsApp: ${normalized.international}`
+              ? `Numero listo para contacto: ${normalized.international}`
               : current.dial === '54'
                 ? 'Para Argentina usamos formato movil: +54 9 + area + numero.'
                 : 'Revisa el codigo de pais y el numero antes de comprar.'
