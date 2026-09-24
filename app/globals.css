@@ -200,6 +200,83 @@
     transform: translateX(-8%) skewX(-12deg);
   }
 
+  .nav-liquid {
+    position: relative;
+    overflow: visible;
+    isolation: isolate;
+    background:
+      linear-gradient(135deg, oklch(1 0 0 / 72%), oklch(1 0 0 / 42%)),
+      radial-gradient(circle at 18% 0%, oklch(1 0 0 / 92%), transparent 38%),
+      radial-gradient(circle at 86% 18%, oklch(0.78 0.02 255 / 18%), transparent 42%);
+    backdrop-filter: blur(28px) saturate(1.32) contrast(1.03);
+    -webkit-backdrop-filter: blur(28px) saturate(1.32) contrast(1.03);
+    border: 1px solid oklch(1 0 0 / 68%);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 86%),
+      inset 0 -1px 0 oklch(0.22 0.02 265 / 8%),
+      0 18px 48px -34px oklch(0.18 0.02 265 / 48%),
+      0 0 0 1px oklch(1 0 0 / 30%);
+  }
+
+  .nav-liquid::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    border-radius: inherit;
+    background:
+      linear-gradient(105deg, transparent 0%, oklch(1 0 0 / 46%) 38%, transparent 62%),
+      radial-gradient(circle at 68% 0%, oklch(1 0 0 / 50%), transparent 34%);
+    opacity: 0.58;
+    filter: blur(0.4px);
+    transform: translateX(-5%) skewX(-10deg);
+    animation: liquid-nav-flow 8s ease-in-out infinite alternate;
+  }
+
+  .nav-liquid::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background:
+      radial-gradient(circle at 30% 120%, oklch(1 0 0 / 38%), transparent 42%),
+      linear-gradient(180deg, oklch(1 0 0 / 36%), transparent 62%);
+    pointer-events: none;
+    opacity: 0.62;
+  }
+
+  .nav-pill,
+  .nav-icon-button {
+    color: oklch(0.24 0.012 265);
+    background: oklch(1 0 0 / 22%);
+    border: 1px solid oklch(1 0 0 / 28%);
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / 54%);
+    backdrop-filter: blur(18px) saturate(1.18);
+    -webkit-backdrop-filter: blur(18px) saturate(1.18);
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.28s ease,
+      box-shadow 0.28s ease;
+  }
+
+  .nav-pill:hover,
+  .nav-icon-button:hover {
+    transform: translateY(-1px);
+    background: oklch(1 0 0 / 42%);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 70%),
+      0 10px 24px -20px oklch(0.18 0.02 265 / 38%);
+  }
+
+  .nav-category-menu {
+    background:
+      linear-gradient(140deg, oklch(1 0 0 / 86%), oklch(1 0 0 / 72%)),
+      radial-gradient(circle at 16% 0%, oklch(1 0 0 / 78%), transparent 38%);
+    backdrop-filter: blur(30px) saturate(1.28);
+    -webkit-backdrop-filter: blur(30px) saturate(1.28);
+  }
+
   .aero-nav {
     color: oklch(1 0 0 / 92%);
     background:
@@ -251,8 +328,18 @@
     }
   }
 
+  @keyframes liquid-nav-flow {
+    from {
+      transform: translateX(-8%) skewX(-10deg);
+    }
+    to {
+      transform: translateX(8%) skewX(-10deg);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .liquid-pop,
+    .nav-liquid::before,
     .nova-launcher {
       animation: none;
     }

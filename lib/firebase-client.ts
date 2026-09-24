@@ -11,6 +11,7 @@ import {
   sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signInWithRedirect,
   signOut,
   updateProfile,
@@ -83,8 +84,17 @@ export async function firebaseGoogleLogin() {
   const auth = await ensureAuthReady()
   const provider = new GoogleAuthProvider()
   provider.setCustomParameters({ prompt: 'select_account' })
-  await signInWithRedirect(auth, provider)
-  return null
+  try {
+    const result = await signInWithPopup(auth, provider)
+    return toAltaUser(result.user)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error || '')
+    if (/popup-blocked|popup-closed|cancelled-popup-request/i.test(message)) {
+      await signInWithRedirect(auth, provider)
+      return null
+    }
+    throw error
+  }
 }
 
 export async function firebaseResetPassword(email: string) {

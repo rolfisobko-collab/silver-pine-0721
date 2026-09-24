@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { type FormEvent, useEffect, useRef, useState } from 'react'
 import {
   ChevronDown,
+  Home,
+  LayoutGrid,
   LogOut,
   Menu,
   Package,
@@ -94,7 +96,7 @@ export function SiteNav() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4">
-      <nav className="glass mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-3 py-2.5 sm:rounded-full sm:px-5">
+      <nav className="nav-liquid mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-3 py-2.5 sm:rounded-full sm:px-5">
         <Link
           href="/"
           className="flex items-center pl-1"
@@ -104,10 +106,11 @@ export function SiteNav() {
         </Link>
 
         <div className="hidden items-center gap-1 md:flex">
-          <NavLink href="/" label="Inicio" active={pathname === '/'} />
+          <NavLink href="/" label="Inicio" icon={Home} active={pathname === '/'} />
           <NavLink
             href="/catalogo"
             label="Catalogo"
+            icon={LayoutGrid}
             active={pathname === '/catalogo'}
           />
 
@@ -117,16 +120,17 @@ export function SiteNav() {
             tree={navTree}
             placeholder="Categorias"
             ariaLabel="Elegir categoria o subcategoria"
-            className="w-56"
-            buttonClassName="h-10 rounded-full bg-white/60 px-4 py-2 shadow-none"
-            menuClassName="w-[min(24rem,calc(100vw-2rem))]"
+            className="w-44"
+            iconClassName="text-foreground/80"
+            buttonClassName="nav-pill h-10 rounded-full border-0 bg-transparent px-3 py-2 shadow-none backdrop-blur-none hover:translate-y-0 hover:border-0 hover:bg-white/28 hover:shadow-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+            menuClassName="nav-category-menu w-[min(23rem,calc(100vw-2rem))]"
           />
         </div>
 
         <form
           onSubmit={submitSearch}
           className={cn(
-            'hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-full border border-border bg-secondary/70 px-4 py-2 lg:mx-5 lg:flex',
+            'hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-full border border-white/40 bg-white/34 px-4 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-xl lg:mx-5 lg:flex',
             isCatalog && 'lg:hidden',
           )}
           role="search"
@@ -146,7 +150,7 @@ export function SiteNav() {
             type="button"
             onClick={() => setSearchOpen((v) => !v)}
             className={cn(
-              'glass-hover flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white lg:hidden',
+              'nav-icon-button flex h-10 w-10 items-center justify-center rounded-full lg:hidden',
               isCatalog && 'hidden',
             )}
             aria-label={searchOpen ? 'Cerrar buscador' : 'Abrir buscador'}
@@ -162,7 +166,7 @@ export function SiteNav() {
                   <button
                     type="button"
                     onClick={() => setUserOpen((v) => !v)}
-                    className="glass glass-hover flex h-10 items-center gap-2 rounded-full pl-1.5 pr-3"
+                    className="nav-pill flex h-10 items-center gap-2 rounded-full pl-1.5 pr-3"
                     aria-expanded={userOpen}
                   >
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
@@ -195,7 +199,7 @@ export function SiteNav() {
               ) : (
                 <Link
                   href="/cuenta"
-                  className="glass glass-hover flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium"
+                  className="nav-pill flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium"
                 >
                   <User className="h-4 w-4" />
                   Ingresar
@@ -206,7 +210,7 @@ export function SiteNav() {
 
           <Link
             href="/carrito"
-            className="glass-hover relative flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white"
+            className="nav-icon-button relative flex h-10 w-10 items-center justify-center rounded-full"
             aria-label="Ver carrito"
           >
             <ShoppingBag className="h-4.5 w-4.5" />
@@ -220,7 +224,7 @@ export function SiteNav() {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="glass-hover flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white md:hidden"
+            className="nav-icon-button flex h-10 w-10 items-center justify-center rounded-full md:hidden"
             aria-label="Abrir menu"
             aria-expanded={open}
           >
@@ -308,10 +312,12 @@ export function SiteNav() {
 
 function NavLink({
   href,
+  icon: Icon,
   label,
   active,
 }: {
   href: string
+  icon: typeof Home
   label: string
   active: boolean
 }) {
@@ -319,10 +325,11 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        'rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground',
-        active && 'bg-secondary text-foreground',
+        'nav-pill flex items-center gap-2 rounded-full px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground',
+        active && 'bg-white/42 text-foreground',
       )}
     >
+      <Icon className="h-4 w-4 text-foreground/75" />
       {label}
     </Link>
   )

@@ -16,6 +16,7 @@ export function CategoryTreeSelect({
   ariaLabel,
   buttonClassName,
   className,
+  iconClassName,
   menuClassName,
   onChange,
   placeholder = 'Todas las categorias',
@@ -25,6 +26,7 @@ export function CategoryTreeSelect({
   ariaLabel?: string
   buttonClassName?: string
   className?: string
+  iconClassName?: string
   menuClassName?: string
   onChange: (value: Selection | null) => void
   placeholder?: string
@@ -136,7 +138,7 @@ export function CategoryTreeSelect({
         )}
       >
         <span className={cn('flex min-w-0 items-center gap-2 truncate', !value && 'text-muted-foreground')}>
-          <Folder className="h-4 w-4 shrink-0 text-primary" />
+          <Folder className={cn('h-4 w-4 shrink-0 text-primary', iconClassName)} />
           <span className="truncate">{selectedLabel}</span>
         </span>
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground/5 text-muted-foreground transition group-hover:bg-primary/10 group-hover:text-primary">
