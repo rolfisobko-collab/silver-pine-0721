@@ -18,6 +18,7 @@ import {
 import { useCart } from '@/components/cart-context'
 import { useAuth } from '@/components/auth-context'
 import { BrandMark } from '@/components/brand-mark'
+import { LiquidNavShell } from '@/components/liquid-nav-shell'
 import { CategoryTreeSelect } from '@/components/ui/category-tree-select'
 import { categoryTree } from '@/lib/products'
 import { cn } from '@/lib/utils'
@@ -96,146 +97,148 @@ export function SiteNav() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4">
-      <nav className="nav-liquid mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-3 py-2.5 sm:rounded-full sm:px-5">
-        <Link
-          href="/"
-          className="flex items-center pl-1"
-          aria-label="Alta, ir al inicio"
-        >
-          <BrandMark />
-        </Link>
-
-        <div className="hidden items-center gap-1 md:flex">
-          <NavLink href="/" label="Inicio" icon={Home} active={pathname === '/'} />
-          <NavLink
-            href="/catalogo"
-            label="Catalogo"
-            icon={LayoutGrid}
-            active={pathname === '/catalogo'}
-          />
-
-          <CategoryTreeSelect
-            value={categorySelection}
-            onChange={goToCategory}
-            tree={navTree}
-            placeholder="Categorias"
-            ariaLabel="Elegir categoria o subcategoria"
-            className="w-44"
-            iconClassName="text-foreground/80"
-            buttonClassName="nav-pill h-10 rounded-full border-0 bg-transparent px-3 py-2 shadow-none backdrop-blur-none hover:translate-y-0 hover:border-0 hover:bg-white/28 hover:shadow-none focus-visible:ring-2 focus-visible:ring-foreground/10"
-            menuClassName="nav-category-menu w-[min(23rem,calc(100vw-2rem))]"
-          />
-        </div>
-
-        <form
-          onSubmit={submitSearch}
-          className={cn(
-            'hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-full border border-white/40 bg-white/34 px-4 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-xl lg:mx-5 lg:flex',
-            isCatalog && 'lg:hidden',
-          )}
-          role="search"
-        >
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar productos"
-            aria-label="Buscar productos"
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          />
-        </form>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setSearchOpen((v) => !v)}
-            className={cn(
-              'nav-icon-button flex h-10 w-10 items-center justify-center rounded-full lg:hidden',
-              isCatalog && 'hidden',
-            )}
-            aria-label={searchOpen ? 'Cerrar buscador' : 'Abrir buscador'}
-            aria-expanded={searchOpen}
-          >
-            <Search className="h-4.5 w-4.5" />
-          </button>
-
-          {ready && (
-            <div className="relative hidden md:block" ref={userRef}>
-              {user ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setUserOpen((v) => !v)}
-                    className="nav-pill flex h-10 items-center gap-2 rounded-full pl-1.5 pr-3"
-                    aria-expanded={userOpen}
-                  >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                      {user.name.charAt(0).toUpperCase()}
-                    </span>
-                    <span className="max-w-24 truncate text-sm font-medium">
-                      {user.name.split(' ')[0]}
-                    </span>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                  {userOpen && (
-                    <div className="liquid-panel liquid-pop absolute right-0 top-full mt-2 w-52 rounded-2xl p-2">
-                      <MenuItem href="/cuenta" icon={User} label="Mi perfil" />
-                      <MenuItem
-                        href="/cuenta/pedidos"
-                        icon={Package}
-                        label="Mis pedidos"
-                      />
-                      <button
-                        type="button"
-                        onClick={logout}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Cerrar sesion
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <Link
-                  href="/cuenta"
-                  className="nav-pill flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium"
-                >
-                  <User className="h-4 w-4" />
-                  Ingresar
-                </Link>
-              )}
-            </div>
-          )}
-
+      <LiquidNavShell>
+        <nav className="nav-liquid-content flex items-center justify-between rounded-2xl px-3 py-2.5 sm:rounded-full sm:px-5">
           <Link
-            href="/carrito"
-            className="nav-icon-button relative flex h-10 w-10 items-center justify-center rounded-full"
-            aria-label="Ver carrito"
+            href="/"
+            className="flex items-center pl-1"
+            aria-label="Alta, ir al inicio"
           >
-            <ShoppingBag className="h-4.5 w-4.5" />
-            {count > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-semibold text-primary-foreground">
-                {count}
-              </span>
-            )}
+            <BrandMark />
           </Link>
 
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="nav-icon-button flex h-10 w-10 items-center justify-center rounded-full md:hidden"
-            aria-label="Abrir menu"
-            aria-expanded={open}
-          >
-            {open ? (
-              <X className="h-4.5 w-4.5" />
-            ) : (
-              <Menu className="h-4.5 w-4.5" />
+          <div className="hidden items-center gap-1 md:flex">
+            <NavLink href="/" label="Inicio" icon={Home} active={pathname === '/'} />
+            <NavLink
+              href="/catalogo"
+              label="Catalogo"
+              icon={LayoutGrid}
+              active={pathname === '/catalogo'}
+            />
+
+            <CategoryTreeSelect
+              value={categorySelection}
+              onChange={goToCategory}
+              tree={navTree}
+              placeholder="Categorias"
+              ariaLabel="Elegir categoria o subcategoria"
+              className="w-44"
+              iconClassName="text-foreground/80"
+              buttonClassName="nav-pill h-10 rounded-full border-0 bg-transparent px-3 py-2 shadow-none backdrop-blur-none hover:translate-y-0 hover:border-0 hover:bg-white/28 hover:shadow-none focus-visible:ring-2 focus-visible:ring-foreground/10"
+              menuClassName="nav-category-menu w-[min(23rem,calc(100vw-2rem))]"
+            />
+          </div>
+
+          <form
+            onSubmit={submitSearch}
+            className={cn(
+              'hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-full border border-white/40 bg-white/34 px-4 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-xl lg:mx-5 lg:flex',
+              isCatalog && 'lg:hidden',
             )}
-          </button>
-        </div>
-      </nav>
+            role="search"
+          >
+            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar productos"
+              aria-label="Buscar productos"
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </form>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSearchOpen((v) => !v)}
+              className={cn(
+                'nav-icon-button flex h-10 w-10 items-center justify-center rounded-full lg:hidden',
+                isCatalog && 'hidden',
+              )}
+              aria-label={searchOpen ? 'Cerrar buscador' : 'Abrir buscador'}
+              aria-expanded={searchOpen}
+            >
+              <Search className="h-4.5 w-4.5" />
+            </button>
+
+            {ready && (
+              <div className="relative hidden md:block" ref={userRef}>
+                {user ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setUserOpen((v) => !v)}
+                      className="nav-pill flex h-10 items-center gap-2 rounded-full pl-1.5 pr-3"
+                      aria-expanded={userOpen}
+                    >
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                        {user.name.charAt(0).toUpperCase()}
+                      </span>
+                      <span className="max-w-24 truncate text-sm font-medium">
+                        {user.name.split(' ')[0]}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                    {userOpen && (
+                      <div className="liquid-panel liquid-pop absolute right-0 top-full mt-2 w-52 rounded-2xl p-2">
+                        <MenuItem href="/cuenta" icon={User} label="Mi perfil" />
+                        <MenuItem
+                          href="/cuenta/pedidos"
+                          icon={Package}
+                          label="Mis pedidos"
+                        />
+                        <button
+                          type="button"
+                          onClick={logout}
+                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Cerrar sesion
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href="/cuenta"
+                    className="nav-pill flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium"
+                  >
+                    <User className="h-4 w-4" />
+                    Ingresar
+                  </Link>
+                )}
+              </div>
+            )}
+
+            <Link
+              href="/carrito"
+              className="nav-icon-button relative flex h-10 w-10 items-center justify-center rounded-full"
+              aria-label="Ver carrito"
+            >
+              <ShoppingBag className="h-4.5 w-4.5" />
+              {count > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-semibold text-primary-foreground">
+                  {count}
+                </span>
+              )}
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="nav-icon-button flex h-10 w-10 items-center justify-center rounded-full md:hidden"
+              aria-label="Abrir menu"
+              aria-expanded={open}
+            >
+              {open ? (
+                <X className="h-4.5 w-4.5" />
+              ) : (
+                <Menu className="h-4.5 w-4.5" />
+              )}
+            </button>
+          </div>
+        </nav>
+      </LiquidNavShell>
 
       {searchOpen && (
         <form
