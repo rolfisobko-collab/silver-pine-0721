@@ -121,6 +121,7 @@ export function SiteNav() {
               value={categorySelection}
               onChange={goToCategory}
               tree={navTree}
+              tone="neutral"
               placeholder="Categorias"
               ariaLabel="Elegir categoria o subcategoria"
               className="w-44"
@@ -314,6 +315,7 @@ export function SiteNav() {
             value={categorySelection}
             onChange={goToCategory}
             tree={navTree}
+            tone="neutral"
             placeholder="Todas las categorías"
             ariaLabel="Elegir categoria o subcategoria"
             buttonClassName="bg-white/80"
