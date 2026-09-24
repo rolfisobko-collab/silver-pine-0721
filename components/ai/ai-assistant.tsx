@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Check, Plus, Send, X } from 'lucide-react'
+import { Check, Plus, Send, ShoppingBag, X } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
 import { Price } from '@/components/ui/price'
 import { type Product } from '@/lib/products'
@@ -210,7 +210,7 @@ export function AiAssistant() {
                         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(239,35,60,0.12),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.45),rgba(255,255,255,0))]" />
                         <div className="relative flex gap-3">
                           <Link
-                            href={`/producto/${encodeURIComponent(p.id)}`}
+                            href={`/producto/${encodeURIComponent(p.slug)}`}
                             onClick={() => setOpen(false)}
                             className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-white shadow-inner"
                           >
@@ -224,7 +224,7 @@ export function AiAssistant() {
                           </Link>
                           <div className="min-w-0 flex-1">
                             <Link
-                              href={`/producto/${encodeURIComponent(p.id)}`}
+                              href={`/producto/${encodeURIComponent(p.slug)}`}
                               onClick={() => setOpen(false)}
                               className="block"
                             >
@@ -242,7 +242,7 @@ export function AiAssistant() {
                               <button
                                 type="button"
                                 onClick={() => addProduct(p)}
-                                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-[0_12px_28px_-18px_rgba(239,35,60,0.9)] transition-transform hover:scale-105 active:scale-95"
+                                className="inline-flex min-w-[92px] items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-[0_12px_28px_-18px_rgba(239,35,60,0.9)] transition-transform hover:scale-105 active:scale-95"
                               >
                                 {addedId === p.id ? (
                                   <>
@@ -257,6 +257,16 @@ export function AiAssistant() {
                                 )}
                               </button>
                             </div>
+                            {addedId === p.id && (
+                              <Link
+                                href="/carrito"
+                                onClick={() => setOpen(false)}
+                                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/8 px-3 py-1.5 text-[11px] font-black text-primary transition hover:bg-primary hover:text-white"
+                              >
+                                <ShoppingBag className="h-3.5 w-3.5" />
+                                Ver carrito
+                              </Link>
+                            )}
                           </div>
                         </div>
                       </div>
