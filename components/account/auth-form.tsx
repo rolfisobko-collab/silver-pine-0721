@@ -42,7 +42,7 @@ export function AuthForm() {
       setError(res.error ?? 'No pudimos iniciar sesion.')
       return
     }
-    router.push('/cuenta')
+    router.push('/')
   }
 
   async function handleGoogleLogin() {
@@ -56,7 +56,7 @@ export function AuthForm() {
       return
     }
     if (res.redirecting) return
-    router.push('/cuenta')
+    router.push('/')
   }
 
   return (

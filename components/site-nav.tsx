@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { type FormEvent, useEffect, useRef, useState } from 'react'
 import {
@@ -171,8 +172,18 @@ export function SiteNav() {
                       className="nav-pill flex h-10 items-center gap-2 rounded-full pl-1.5 pr-3"
                       aria-expanded={userOpen}
                     >
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                        {user.name.charAt(0).toUpperCase()}
+                      <span className="relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-semibold text-primary-foreground ring-1 ring-white/65">
+                        {user.photoURL ? (
+                          <Image
+                            src={user.photoURL}
+                            alt={user.name}
+                            fill
+                            sizes="28px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          user.name.charAt(0).toUpperCase()
+                        )}
                       </span>
                       <span className="max-w-24 truncate text-sm font-medium">
                         {user.name.split(' ')[0]}

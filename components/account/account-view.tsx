@@ -26,8 +26,18 @@ export function AccountView() {
     <div className="mx-auto max-w-4xl px-4">
       <div className="glass glass-sheen mb-6 flex flex-col gap-5 rounded-4xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div className="flex items-center gap-4">
-          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-semibold text-primary-foreground">
-            {user.name.charAt(0).toUpperCase()}
+          <span className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-primary text-2xl font-semibold text-primary-foreground">
+            {user.photoURL ? (
+              <Image
+                src={user.photoURL}
+                alt={user.name}
+                fill
+                sizes="64px"
+                className="object-cover"
+              />
+            ) : (
+              user.name.charAt(0).toUpperCase()
+            )}
           </span>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
