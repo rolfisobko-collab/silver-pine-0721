@@ -24,7 +24,7 @@ export function AccountView() {
 
   return (
     <div className="mx-auto max-w-4xl px-4">
-      <div className="glass glass-sheen mb-6 flex flex-col gap-5 rounded-4xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+      <div className="liquid-glass-strong mb-6 flex flex-col gap-5 rounded-4xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div className="flex items-center gap-4">
           <span className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-primary text-2xl font-semibold text-primary-foreground">
             {user.photoURL ? (
@@ -52,7 +52,7 @@ export function AccountView() {
         <button
           type="button"
           onClick={logout}
-          className="glass glass-hover inline-flex w-fit items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium"
+          className="nav-pill inline-flex w-fit items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium"
         >
           <LogOut className="h-4 w-4" />
           Cerrar sesión
@@ -60,7 +60,7 @@ export function AccountView() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="glass glass-sheen flex items-center justify-between rounded-3xl p-6">
+        <div className="liquid-glass-strong flex items-center justify-between rounded-3xl p-6">
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
               <Gift className="h-5 w-5" />

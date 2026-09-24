@@ -179,13 +179,13 @@ export function FitmentFinder({
   return (
     <section className="px-4 py-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
-        <div className="relative overflow-hidden rounded-4xl border border-white/70 bg-white shadow-sm">
+        <div className="liquid-glass-strong relative rounded-4xl">
           <div className="pointer-events-none absolute inset-0">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-80"
               style={{ backgroundImage: "url('/alta-brand/bg-fitment-glass.png')" }}
             />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.88),rgba(255,255,255,0.68)_58%,rgba(255,255,255,0.42))]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.78),rgba(255,255,255,0.54)_58%,rgba(255,255,255,0.28))]" />
           </div>
 
           <div className="relative z-10 p-3 sm:p-4">
@@ -197,7 +197,7 @@ export function FitmentFinder({
                 Buscar y filtrar
               </div>
 
-              <div className="flex items-center gap-2 rounded-2xl border border-border bg-white/88 px-4 py-3 shadow-sm backdrop-blur-xl sm:min-w-80">
+              <div className="nav-pill flex items-center gap-2 rounded-2xl px-4 py-3 sm:min-w-80">
                 <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <input
                   value={query}
@@ -234,13 +234,14 @@ export function FitmentFinder({
                 value={categorySelection}
                 onChange={setCategorySelection}
                 tree={categoryTree}
+                tone="neutral"
                 placeholder="Todas las categorías"
                 ariaLabel="Filtrar por categoria o subcategoria"
               />
 
               <Link
                 href={href}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95"
+                className="nav-pill inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition-transform hover:scale-[1.02] active:scale-95"
               >
                 Ver productos
                 <ArrowRight className="h-4 w-4" />

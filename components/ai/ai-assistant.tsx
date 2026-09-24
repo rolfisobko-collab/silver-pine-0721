@@ -162,8 +162,8 @@ export function AiAssistant() {
       </button>
 
       {open && (
-        <div className="liquid-panel liquid-pop fixed bottom-24 right-5 z-50 flex h-[72vh] max-h-[620px] w-[calc(100vw-2.5rem)] max-w-md flex-col overflow-hidden rounded-4xl">
-          <header className="flex items-center gap-3 border-b border-border bg-white/45 px-5 py-4 backdrop-blur-2xl">
+        <div className="liquid-glass-strong liquid-pop fixed bottom-24 right-5 z-50 flex h-[72vh] max-h-[620px] w-[calc(100vw-2.5rem)] max-w-md flex-col overflow-hidden rounded-4xl">
+          <header className="flex items-center gap-3 border-b border-white/45 bg-white/24 px-5 py-4 backdrop-blur-2xl">
             <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
               <Image
                 src="/nova-avatar.png"
@@ -300,8 +300,8 @@ export function AiAssistant() {
             )}
           </div>
 
-          <div className="border-t border-border bg-white/35 p-3 backdrop-blur-2xl">
-            <div className="glass flex items-center gap-2 rounded-full py-1.5 pl-4 pr-1.5">
+          <div className="border-t border-white/45 bg-white/20 p-3 backdrop-blur-2xl">
+            <div className="nav-pill flex items-center gap-2 rounded-full py-1.5 pl-4 pr-1.5">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

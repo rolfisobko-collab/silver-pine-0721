@@ -38,7 +38,7 @@ const groups = [
 export function SiteFooter() {
   return (
     <footer className="px-4 pb-8 pt-16">
-      <div className="mx-auto max-w-6xl rounded-4xl border border-border bg-white p-7 shadow-sm sm:p-12">
+      <div className="liquid-glass-strong mx-auto max-w-6xl rounded-4xl p-7 sm:p-12">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
             <BrandMark />
@@ -48,7 +48,7 @@ export function SiteFooter() {
             </p>
             <Link
               href="/links"
-              className="mt-5 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5"
+              className="nav-pill mt-5 inline-flex rounded-full px-4 py-2 text-sm font-bold transition hover:-translate-y-0.5"
             >
               Contactar Alta
             </Link>
