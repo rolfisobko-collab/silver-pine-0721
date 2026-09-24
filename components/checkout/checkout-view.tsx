@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { Check, CreditCard, Lock, MessageCircle, Truck } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { AlertCircle, Check, CheckCircle2, CreditCard, Lock, MessageCircle, Truck } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
 import { useAuth } from '@/components/auth-context'
 import { formatPrice } from '@/lib/products'
@@ -11,6 +11,39 @@ import { Price } from '@/components/ui/price'
 import { cn } from '@/lib/utils'
 
 type PaymentMethod = 'operator' | 'mercadopago'
+
+const phoneCountries = [
+  { code: 'AR', name: 'Argentina', dial: '54', placeholder: '9 3764 63-3878' },
+  { code: 'PY', name: 'Paraguay', dial: '595', placeholder: '985 712217' },
+  { code: 'BR', name: 'Brasil', dial: '55', placeholder: '11 91234-5678' },
+  { code: 'UY', name: 'Uruguay', dial: '598', placeholder: '99 123 456' },
+  { code: 'CL', name: 'Chile', dial: '56', placeholder: '9 1234 5678' },
+  { code: 'BO', name: 'Bolivia', dial: '591', placeholder: '71234567' },
+  { code: 'US', name: 'Estados Unidos', dial: '1', placeholder: '305 555 0123' },
+]
+
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, '')
+}
+
+function normalizePhone(countryDial: string, value: string) {
+  let digits = onlyDigits(value)
+  if (digits.startsWith(countryDial)) digits = digits.slice(countryDial.length)
+  if (countryDial === '54') {
+    digits = digits.replace(/^0+/, '')
+    if (digits.length >= 10 && !digits.startsWith('9')) digits = `9${digits}`
+  }
+  return {
+    national: digits,
+    international: digits ? `+${countryDial}${digits}` : '',
+  }
+}
+
+function isPhoneValid(countryDial: string, national: string) {
+  if (!national) return false
+  if (countryDial === '54') return /^9\d{10}$/.test(national)
+  return national.length >= 8 && national.length <= 14
+}
 
 function Field({
   label,
@@ -30,6 +63,77 @@ function Field({
   )
 }
 
+function PhoneField({
+  country,
+  phone,
+  onCountryChange,
+  onPhoneChange,
+}: {
+  country: string
+  phone: string
+  onCountryChange: (value: string) => void
+  onPhoneChange: (value: string) => void
+}) {
+  const current = phoneCountries.find((item) => item.dial === country) || phoneCountries[0]
+  const normalized = normalizePhone(current.dial, phone)
+  const hasValue = onlyDigits(phone).length > 0
+  const valid = isPhoneValid(current.dial, normalized.national)
+
+  return (
+    <label htmlFor="phone" className="block">
+      <span className="mb-1.5 block text-sm font-medium">WhatsApp</span>
+      <div className="glass flex min-h-12 overflow-hidden rounded-2xl text-sm transition-shadow focus-within:ring-2 focus-within:ring-primary/60">
+        <select
+          value={current.dial}
+          onChange={(event) => onCountryChange(event.target.value)}
+          className="w-[116px] shrink-0 border-r border-border bg-white/35 px-3 font-semibold outline-none backdrop-blur-xl sm:w-[132px]"
+          aria-label="Codigo de pais"
+        >
+          {phoneCountries.map((item) => (
+            <option key={item.code} value={item.dial}>
+              {item.code} +{item.dial}
+            </option>
+          ))}
+        </select>
+        <input
+          id="phone"
+          required
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          value={phone}
+          onChange={(event) => onPhoneChange(event.target.value)}
+          placeholder={current.placeholder}
+          className="min-w-0 flex-1 bg-transparent px-4 py-3 outline-none placeholder:text-muted-foreground"
+        />
+      </div>
+      <div
+        className={cn(
+          'mt-2 flex min-h-5 items-center gap-1.5 text-xs font-semibold transition',
+          !hasValue && 'text-muted-foreground',
+          hasValue && valid && 'text-emerald-600',
+          hasValue && !valid && 'text-amber-700',
+        )}
+      >
+        {hasValue && valid ? (
+          <CheckCircle2 className="h-3.5 w-3.5" />
+        ) : hasValue ? (
+          <AlertCircle className="h-3.5 w-3.5" />
+        ) : null}
+        <span>
+          {hasValue
+            ? valid
+              ? `Formato listo para WhatsApp: ${normalized.international}`
+              : current.dial === '54'
+                ? 'Para Argentina usamos formato movil: +54 9 + area + numero.'
+                : 'Revisa el codigo de pais y el numero antes de comprar.'
+            : 'Argentina viene preseleccionado, pero podes usar otro pais.'}
+        </span>
+      </div>
+    </label>
+  )
+}
+
 export function CheckoutView() {
   const { items, subtotal, clear } = useCart()
   const { user, createOrder } = useAuth()
@@ -42,6 +146,7 @@ export function CheckoutView() {
   const [email, setEmail] = useState(user?.email ?? '')
   const [firstName, setFirstName] = useState(user?.name?.split(' ')[0] ?? '')
   const [lastName, setLastName] = useState(user?.name?.split(' ').slice(1).join(' ') ?? '')
+  const [phoneCountry, setPhoneCountry] = useState('54')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [city, setCity] = useState('')
@@ -63,6 +168,8 @@ export function CheckoutView() {
 
   const total = subtotal
   const hasInvalidPrice = items.some((item) => Number(item.product.price || 0) <= 0)
+  const normalizedPhone = useMemo(() => normalizePhone(phoneCountry, phone), [phoneCountry, phone])
+  const phoneValid = isPhoneValid(phoneCountry, normalizedPhone.national)
 
   async function syncOrder(order: unknown) {
     try {
@@ -87,6 +194,10 @@ export function CheckoutView() {
       setError('Hay productos sin precio. Sacalos del carrito o consultá con una operadora.')
       return
     }
+    if (!phoneValid) {
+      setError('Revisa el WhatsApp antes de comprar. Necesitamos un numero valido para coordinar el pedido.')
+      return
+    }
     setLoading(true)
 
     const orderId = `ALT-${Date.now().toString(36).toUpperCase()}`
@@ -96,7 +207,7 @@ export function CheckoutView() {
       customer: {
         name: customerName,
         email,
-        phone,
+        phone: normalizedPhone.international,
       },
       delivery: {
         address,
@@ -264,14 +375,11 @@ export function CheckoutView() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <Field
-                label="WhatsApp"
-                id="phone"
-                type="tel"
-                placeholder="+54 9 376 ..."
-                autoComplete="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+              <PhoneField
+                country={phoneCountry}
+                phone={phone}
+                onCountryChange={setPhoneCountry}
+                onPhoneChange={setPhone}
               />
               <Field
                 label="Nombre"
@@ -407,8 +515,8 @@ export function CheckoutView() {
 
             <button
               type="submit"
-              disabled={loading || hasInvalidPrice}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95 disabled:cursor-wait disabled:opacity-70"
+              disabled={loading || hasInvalidPrice || !phoneValid}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Lock className="h-4 w-4" />
               {loading
@@ -471,3 +579,4 @@ function PaymentCard({
     </button>
   )
 }
+
